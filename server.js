@@ -814,6 +814,29 @@ async function processSpxEPWebhook(data) {
     orders[index].spx_ep_tracking_code_name =
       data.tracking_code_name || "";
 
+    const epStatus = String(
+      data.status ||
+      data.tracking_code_name ||
+      ""
+    ).trim().toLowerCase();
+
+    const epStatusCode = String(
+      data.status_code_name ||
+      ""
+    ).trim();
+
+    if (
+      epStatus === "delivered" ||
+      epStatus.includes("delivered") ||
+      epStatusCode === "4001"
+    ) {
+      orders[index].shipping_status = "DELIVERED";
+      orders[index].order_status = "Delivered";
+
+      orders[index].delivered_at =
+        orders[index].delivered_at || now;
+    }
+
     orders[index].spx_ep_status_code_name =
       data.status_code_name || "";
 
