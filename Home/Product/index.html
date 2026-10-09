@@ -62,7 +62,7 @@
 
   <link rel="stylesheet" href="../style.css?v=10003" />
   <link rel="stylesheet" href="../chat/chat.css?v=20">
-  <link rel="stylesheet" href="product.css?v=2026.10.09.02" />
+  <link rel="stylesheet" href="product.css?v=2026.10.09.03" />
 </head>
 
 <body>
@@ -298,28 +298,28 @@
             <span class="sold-count" id="productSoldCount">Sold 0</span>
           </div>
 
-          <div class="price-row">
-            <span class="price" id="productPrice">₱0</span>
-            <span class="old-price" id="productOldPrice"></span>
-            <span class="discount" id="discountBadge"></span>
-          </div>
+          <div class="price-delivery-row">
 
-          <div class="delivery-badge">
-            <div class="delivery-icon">⚡</div>
-
-            <div class="delivery-text">
-
-              <strong>GET IT TODAY</strong>
-
-              <span>Same Day Delivery via Lalamove</span>
-
-              <small>📍 Metro Manila & Nearby Areas</small>
-
-              <button class="delivery-note-btn" onclick="openDeliveryInfo()">
-                ⓘ Learn how Same Day Delivery works
-              </button>
-
+            <div class="price-row">
+              <span class="price" id="productPrice">₱0</span>
+              <span class="old-price" id="productOldPrice"></span>
+              <span class="discount" id="discountBadge"></span>
             </div>
+
+            <div class="delivery-badge">
+              <div class="delivery-icon">⚡</div>
+
+              <div class="delivery-text">
+                <strong>GET IT TODAY</strong>
+                <span>Same Day Delivery via Lalamove</span>
+                <small>📍 Metro Manila & Nearby Areas</small>
+
+                <button class="delivery-note-btn" type="button" onclick="openDeliveryInfo()">
+                  ⓘ Learn how Same Day Delivery works
+                </button>
+              </div>
+            </div>
+
           </div>
 
           <p class="stock" id="stockText">
@@ -744,7 +744,7 @@
 
   <script src="../Admin/supabase.js?v=50001"></script>
 
-  <script src="product.js?v=2026.08.13.02"></script>
+  <script src="product.js?v=2026.10.09.03"></script>
 
   <script src="../chat/chat.js?v=10021"></script>
 

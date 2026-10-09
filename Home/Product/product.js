@@ -727,32 +727,84 @@ function renderProductGallery() {
     </div>
   `;
 
+
+
+  let galleryTimer = null;
+  let galleryRequest = 0;
+
   function showImage(index) {
     const img = document.getElementById("productImg");
-    if (!img) return;
+
+    if (!img || !images.length) return;
+    if (index < 0 || index >= images.length) return;
+    if (index === currentIndex && img.src) return;
+
+    clearTimeout(galleryTimer);
+
+    const requestId = ++galleryRequest;
+    const nextSrc = images[index];
 
     currentIndex = index;
 
-    img.style.opacity = "0";
-    img.style.transform = "translateX(18px)";
-
-    setTimeout(() => {
-      img.src = images[currentIndex];
-
-      img.style.opacity = "1";
-      img.style.transform = "translateX(0)";
-    }, 120);
-
     imageBox.querySelectorAll(".product-thumb").forEach((thumb, i) => {
-      thumb.classList.toggle("active", i === currentIndex);
+      thumb.classList.toggle("active", i === index);
     });
+
+    const preload = new Image();
+
+    preload.onload = () => {
+      if (requestId !== galleryRequest) return;
+
+      img.style.transform = "none";
+      img.style.opacity = "0";
+
+      galleryTimer = setTimeout(() => {
+        if (requestId !== galleryRequest) return;
+
+        img.src = nextSrc;
+
+        requestAnimationFrame(() => {
+          img.style.opacity = "1";
+        });
+      }, 160);
+    };
+
+    preload.onerror = () => {
+      if (requestId !== galleryRequest) return;
+
+      img.src = nextSrc;
+      img.style.transform = "none";
+      img.style.opacity = "1";
+    };
+
+    preload.src = nextSrc;
   }
 
+
+
   imageBox.querySelectorAll(".product-thumb").forEach((btn) => {
+
+    // CLICK OR TAP
     btn.addEventListener("click", function () {
       showImage(Number(this.dataset.index));
     });
+
+    // AUTO CHANGE WHEN MOUSE HOVERS
+    btn.addEventListener("mouseenter", function () {
+      if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        return;
+      }
+
+      showImage(Number(this.dataset.index));
+    });
+
+    // KEYBOARD FOCUS
+    btn.addEventListener("focus", function () {
+      showImage(Number(this.dataset.index));
+    });
+
   });
+
 
   document.getElementById("galleryPrevBtn")?.addEventListener("click", () => {
     const prevIndex = currentIndex <= 0 ? images.length - 1 : currentIndex - 1;
@@ -764,31 +816,48 @@ function renderProductGallery() {
     showImage(nextIndex);
   });
 
-  let touchStartX = 0;
-  let touchEndX = 0;
 
+  // SMOOTH MOBILE GALLERY SWIPE
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let isSwiping = false;
 
   const slider = imageBox.querySelector(".product-gallery-slider");
 
   slider?.addEventListener("touchstart", (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  });
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    isSwiping = true;
+  }, { passive: true });
 
   slider?.addEventListener("touchend", (e) => {
-    touchEndX = e.changedTouches[0].screenX;
+    if (!isSwiping) return;
 
-    const swipeDistance = touchEndX - touchStartX;
+    isSwiping = false;
 
-    if (Math.abs(swipeDistance) < 35) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
 
-    if (swipeDistance < 0) {
-      const nextIndex = currentIndex >= images.length - 1 ? 0 : currentIndex + 1;
-      requestAnimationFrame(() => showImage(nextIndex));
+    const distanceX = touchEndX - touchStartX;
+    const distanceY = touchEndY - touchStartY;
+
+    // Ignore vertical scrolling
+    if (Math.abs(distanceY) > Math.abs(distanceX)) return;
+
+    // Ignore very short swipes
+    if (Math.abs(distanceX) < 40) return;
+
+    if (distanceX < 0) {
+      // Swipe left
+      showImage((currentIndex + 1) % images.length);
     } else {
-      const prevIndex = currentIndex <= 0 ? images.length - 1 : currentIndex - 1;
-      requestAnimationFrame(() => showImage(prevIndex));
+      // Swipe right
+      showImage((currentIndex - 1 + images.length) % images.length);
     }
-  });
+  }, { passive: true });
+
+
 
 }
 
