@@ -825,6 +825,33 @@ function renderProductGallery() {
 
   const slider = imageBox.querySelector(".product-gallery-slider");
 
+
+  slider?.addEventListener("click", (e) => {
+
+    if (e.target.closest(".gallery-nav")) return;
+
+
+    const modal = document.getElementById("productZoomModal");
+    const zoomImage = document.getElementById("productZoomImage");
+    const mainImage = document.getElementById("productImg");
+
+    if (!modal || !zoomImage || !mainImage) return;
+
+    const imageUrl =
+      mainImage.getAttribute("src") ||
+      mainImage.getAttribute("data-src");
+
+    if (!imageUrl) return;
+
+    zoomImage.src = imageUrl;
+    zoomImage.style.transform = "none";
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
+
+
   slider?.addEventListener("touchstart", (e) => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
@@ -1614,6 +1641,122 @@ function scrollVoucher(direction) {
     behavior: "smooth"
   });
 }
+
+
+/* VOUCHER DESKTOP POSITION + CLICK TOGGLE */
+
+const voucherSectionEl = document.querySelector(".voucher-section");
+const desktopVoucherSlotEl = document.getElementById("desktopVoucherSlot");
+
+if (voucherSectionEl && desktopVoucherSlotEl) {
+
+  const voucherOriginalPosition = document.createComment(
+    "ORIGINAL VOUCHER POSITION"
+  );
+
+  voucherSectionEl.parentNode.insertBefore(
+    voucherOriginalPosition,
+    voucherSectionEl
+  );
+
+
+  function moveVoucherByScreen() {
+    const isDesktop = window.innerWidth > 768;
+
+    if (isDesktop) {
+      desktopVoucherSlotEl.appendChild(voucherSectionEl);
+    } else {
+      voucherOriginalPosition.parentNode.insertBefore(
+        voucherSectionEl,
+        voucherOriginalPosition.nextSibling
+      );
+    }
+
+    const voucherToggle = document.getElementById("voucherToggle");
+    const voucherPanel = document.getElementById("voucherPanel");
+
+    if (voucherToggle && voucherPanel) {
+      if (isDesktop) {
+        voucherPanel.hidden = true;
+        voucherToggle.textContent = "🎟 View Vouchers ▾";
+        voucherToggle.setAttribute("aria-expanded", "false");
+      } else {
+        voucherPanel.hidden = false;
+        voucherToggle.setAttribute("aria-expanded", "true");
+      }
+    }
+  }
+
+
+  moveVoucherByScreen();
+
+  window.addEventListener("resize", moveVoucherByScreen);
+}
+
+const voucherToggleButton = document.getElementById("voucherToggle");
+const voucherPanelElement = document.getElementById("voucherPanel");
+
+if (voucherToggleButton && voucherPanelElement) {
+
+  voucherToggleButton.addEventListener("click", () => {
+    const isOpening = voucherPanelElement.hidden;
+
+    voucherPanelElement.hidden = !isOpening;
+
+    voucherToggleButton.setAttribute(
+      "aria-expanded",
+      String(isOpening)
+    );
+
+    voucherToggleButton.textContent = isOpening
+      ? "🎟 Hide Vouchers ▴"
+      : "🎟 View Vouchers ▾";
+  });
+
+}
+
+
+/* MOVE COD BESIDE PRICE ON DESKTOP ONLY */
+
+const codBadgeForDesktop = document.getElementById("codAvailable");
+const desktopCodDestination = document.getElementById("desktopCodSlot");
+
+if (codBadgeForDesktop && desktopCodDestination) {
+
+  const originalCodMarker = document.createComment(
+    "ORIGINAL COD POSITION"
+  );
+
+  codBadgeForDesktop.parentNode.insertBefore(
+    originalCodMarker,
+    codBadgeForDesktop
+  );
+
+  function updateCodBadgeLocation() {
+
+    if (window.innerWidth > 768) {
+
+      if (codBadgeForDesktop.parentNode !== desktopCodDestination) {
+        desktopCodDestination.appendChild(codBadgeForDesktop);
+      }
+
+    } else {
+
+      if (codBadgeForDesktop.previousSibling !== originalCodMarker) {
+        originalCodMarker.parentNode.insertBefore(
+          codBadgeForDesktop,
+          originalCodMarker.nextSibling
+        );
+      }
+
+    }
+  }
+
+  updateCodBadgeLocation();
+
+  window.addEventListener("resize", updateCodBadgeLocation);
+}
+
 
 const protectionToggle = document.getElementById("protectionToggle");
 const protectionMore = document.getElementById("protectionMore");
@@ -3222,3 +3365,240 @@ function closeSkyroInfoModal() {
 
 window.openSkyroInfoModal = openSkyroInfoModal;
 window.closeSkyroInfoModal = closeSkyroInfoModal;
+
+
+/* =========================================
+   PRODUCT IMAGE FULLSCREEN ZOOM
+========================================= */
+
+(function initProductImageZoom() {
+  const modal = document.getElementById("productZoomModal");
+  const zoomImage = document.getElementById("productZoomImage");
+  let mainImage = document.getElementById("productImg");
+
+  const closeBtn = document.getElementById("productZoomClose");
+  const prevBtn = document.getElementById("productZoomPrev");
+  const nextBtn = document.getElementById("productZoomNext");
+  const stage = modal?.querySelector(".product-zoom-stage");
+
+  if (!modal || !zoomImage || !mainImage || !stage) return;
+
+  let scale = 1;
+  let offsetX = 0;
+  let offsetY = 0;
+  let startX = 0;
+  let startY = 0;
+  let startDistance = 0;
+  let startScale = 1;
+  let dragging = false;
+
+
+  function positionZoomArrows() {
+    if (window.innerWidth <= 768) return;
+
+    const prev = document.getElementById("productZoomPrev");
+    const next = document.getElementById("productZoomNext");
+
+    if (!prev || !next || !zoomImage.naturalWidth) return;
+
+    const imageRect = zoomImage.getBoundingClientRect();
+
+    // Actual displayed image area, kahit object-fit: contain
+    const imageWidth = Math.min(
+      imageRect.width,
+      imageRect.height *
+      (zoomImage.naturalWidth / zoomImage.naturalHeight)
+    );
+
+    const imageLeft = imageRect.left +
+      (imageRect.width - imageWidth) / 2;
+
+    const imageRight = imageLeft + imageWidth;
+
+    // Buttons positioned just outside the image edges
+    const gap = 6;
+
+    modal.style.setProperty(
+      "--zoom-prev-left",
+      `${Math.max(8, imageLeft - prev.offsetWidth - gap)}px`
+    );
+
+    modal.style.setProperty(
+      "--zoom-next-right",
+      `${Math.max(8, window.innerWidth - imageRight - next.offsetWidth - gap)}px`
+    );
+  }
+
+  zoomImage.addEventListener("load", positionZoomArrows);
+  window.addEventListener("resize", positionZoomArrows);
+
+
+  function updateTransform() {
+    zoomImage.style.transform =
+      `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  }
+
+  function resetZoom() {
+    scale = 1;
+    offsetX = 0;
+    offsetY = 0;
+    updateTransform();
+  }
+
+
+  function openZoom() {
+    const currentImage = document.getElementById("productImg");
+    if (!currentImage) return;
+
+    const imageUrl =
+      currentImage.getAttribute("src") ||
+      currentImage.getAttribute("data-src");
+
+    if (!imageUrl) return;
+
+    zoomImage.src = imageUrl;
+    resetZoom();
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+
+  function closeZoom() {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    resetZoom();
+  }
+
+
+  function changeImage(direction) {
+    const thumbnails = Array.from(
+      document.querySelectorAll(".product-thumb")
+    );
+
+    if (thumbnails.length <= 1) return;
+
+    let currentIndex = thumbnails.findIndex(
+      thumb => thumb.classList.contains("active")
+    );
+
+    if (currentIndex < 0) currentIndex = 0;
+
+    const nextIndex =
+      (currentIndex + direction + thumbnails.length) % thumbnails.length;
+
+    const nextThumb = thumbnails[nextIndex];
+    const nextImage = nextThumb.querySelector("img");
+
+    if (!nextImage) return;
+
+    zoomImage.src = nextImage.getAttribute("src");
+    resetZoom();
+
+    nextThumb.click();
+  }
+
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("#productImg")) {
+      openZoom();
+    }
+  });
+
+
+  closeBtn?.addEventListener("click", closeZoom);
+
+  prevBtn?.addEventListener("click", () => changeImage(-1));
+  nextBtn?.addEventListener("click", () => changeImage(1));
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal || event.target === stage) {
+      closeZoom();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!modal.classList.contains("show")) return;
+
+    if (event.key === "Escape") closeZoom();
+    if (event.key === "ArrowLeft") changeImage(-1);
+    if (event.key === "ArrowRight") changeImage(1);
+  });
+
+  // DESKTOP: MOUSE WHEEL ZOOM
+  stage.addEventListener("wheel", (event) => {
+    event.preventDefault();
+
+    const amount = event.deltaY < 0 ? 0.2 : -0.2;
+    scale = Math.min(4, Math.max(1, scale + amount));
+
+    if (scale === 1) {
+      offsetX = 0;
+      offsetY = 0;
+    }
+
+    updateTransform();
+  }, { passive: false });
+
+  // MOBILE: PINCH TO ZOOM
+  function touchDistance(touches) {
+    return Math.hypot(
+      touches[0].clientX - touches[1].clientX,
+      touches[0].clientY - touches[1].clientY
+    );
+  }
+
+  stage.addEventListener("touchstart", (event) => {
+    if (event.touches.length === 2) {
+      startDistance = touchDistance(event.touches);
+      startScale = scale;
+      dragging = false;
+    } else if (event.touches.length === 1) {
+      startX = event.touches[0].clientX - offsetX;
+      startY = event.touches[0].clientY - offsetY;
+      dragging = true;
+    }
+  }, { passive: false });
+
+  stage.addEventListener("touchmove", (event) => {
+    if (event.touches.length === 2 && startDistance > 0) {
+      event.preventDefault();
+
+      const distance = touchDistance(event.touches);
+
+      scale = Math.min(
+        4,
+        Math.max(1, startScale * (distance / startDistance))
+      );
+
+      updateTransform();
+
+    } else if (event.touches.length === 1 && dragging && scale > 1) {
+      event.preventDefault();
+
+      offsetX = event.touches[0].clientX - startX;
+      offsetY = event.touches[0].clientY - startY;
+
+      updateTransform();
+    }
+  }, { passive: false });
+
+  stage.addEventListener("touchend", (event) => {
+    if (event.touches.length < 2) startDistance = 0;
+    if (event.touches.length === 0) dragging = false;
+  });
+
+  // DOUBLE CLICK / DOUBLE TAP ZOOM
+  zoomImage.addEventListener("dblclick", () => {
+    scale = scale > 1 ? 1 : 2;
+
+    if (scale === 1) {
+      offsetX = 0;
+      offsetY = 0;
+    }
+
+    updateTransform();
+  });
+})();
