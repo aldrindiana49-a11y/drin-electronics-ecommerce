@@ -62,7 +62,7 @@
 
   <link rel="stylesheet" href="../style.css?v=10003" />
   <link rel="stylesheet" href="../chat/chat.css?v=20">
-  <link rel="stylesheet" href="product.css?v=2026.10.09.03" />
+  <link rel="stylesheet" href="product.css?v=2026.10.11.01" />
 </head>
 
 <body>
@@ -300,12 +300,112 @@
 
           <div class="price-delivery-row">
 
+
             <div class="price-row">
               <span class="price" id="productPrice">₱0</span>
               <span class="old-price" id="productOldPrice"></span>
               <span class="discount" id="discountBadge"></span>
+
+              <div class="desktop-payment-badges">
+                <div id="desktopCodSlot"></div>
+                <div id="desktopVoucherSlot"></div>
+              </div>
+
             </div>
 
+          </div> <!-- END PRICE DELIVERY ROW -->
+
+
+
+          <p class="stock" id="stockText">
+            Stock: 0 available
+          </p>
+
+
+          <div class="payment-voucher-row">
+
+
+            <div id="codAvailable" class="cod-available" style="display:none;">
+              ✅ Cash on Delivery Available
+            </div>
+
+
+            <div id="codNotice" class="cod-warning" style="display:none;">
+
+              <div class="cod-warning-content">
+
+                <div class="cod-warning-heading">
+                  <span class="cod-warning-icon">🔒</span>
+                  <strong>Cash on Delivery Not Available</strong>
+                </div>
+
+                <p>
+                  This item is not eligible for Cash on Delivery.
+                  You may continue using GCash, Maya, Credit Card,
+                  Debit Card, QR Payment, Bank Transfer, and other
+                  secure payment options.
+                </p>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- START PRODUCT VOUCHERS -->
+            <div class="voucher-section">
+
+              <button id="voucherToggle" class="voucher-toggle-btn" type="button" aria-expanded="false"
+                aria-controls="voucherPanel">
+                🎟 View Vouchers ▾
+              </button>
+
+              <div id="voucherPanel" class="voucher-panel" hidden>
+
+                <div class="voucher-header">
+                  <h3>Available Vouchers</h3>
+
+                  <div class="voucher-nav">
+                    <button type="button" onclick="scrollVoucher(-1)">❮</button>
+                    <button type="button" onclick="scrollVoucher(1)">❯</button>
+                  </div>
+                </div>
+
+                <div id="voucherList" class="voucher-list"></div>
+
+              </div> <!-- END VOUCHER PANEL -->
+
+            </div> <!-- END VOUCHER SECTION -->
+
+          </div> <!-- END PAYMENT VOUCHER ROW -->
+
+          <!-- START PRODUCT VARIANTS -->
+          <div id="variantContainer" class="variant-container"></div>
+          <!-- END PRODUCT VARIANTS -->
+
+          <div class="quantity-box">
+            <button id="minusBtn" type="button">−</button>
+            <input type="number" id="quantityInput" value="1" min="1" />
+            <button id="plusBtn" type="button">+</button>
+          </div>
+
+
+
+          <div class="product-action-buttons">
+
+            <button id="addToCartBtn" class="add-cart-btn" type="button">
+              🛒 Add to Cart
+            </button>
+
+            <button id="buyNowBtn" class="buy-now-btn" type="button">
+              ⚡ Buy Now
+            </button>
+
+          </div>
+
+          <div class="delivery-protection-row">
+
+            <!-- SAME DAY DELIVERY BELOW BUTTONS -->
             <div class="delivery-badge">
               <div class="delivery-icon">⚡</div>
 
@@ -320,29 +420,37 @@
               </div>
             </div>
 
-          </div>
 
-          <p class="stock" id="stockText">
-            Stock: 0 available
-          </p>
+            <div class="customer-protection">
 
-          <div id="codAvailable" class="cod-available" style="display:none;">
-            ✅ Cash on Delivery Available
-          </div>
+              <div class="protection-header">
+                <span class="protection-icon">🛡</span>
+                <strong>Customer Protection</strong>
+              </div>
 
-          <div id="codNotice" class="cod-warning" style="display:none;">
-            <div class="cod-warning-icon">🔒</div>
-            <div>
-              <strong>Cash on Delivery Not Available</strong>
-              <p>
-                This item is not eligible for Cash on Delivery.
-                You may continue using GCash, Maya, Credit Card, Debit Card, QR Payment, Bank Transfer, and other secure
-                payment options.
-              </p>
-            </div>
-          </div>
+              <div class="protection-list">
+                <span>✔ Secure Payment</span>
+                <span>✔ Quality Checked</span>
+                <span>✔ Fast & Safe Shipping</span>
+              </div>
+
+              <div id="protectionMore" class="protection-more">
+                <span>✔ Easy Return & Refund</span>
+                <span>✔ Trusted Seller Support</span>
+              </div>
+
+
+              <button id="protectionToggle" class="protection-toggle" type="button">
+                Read More
+              </button>
+
+            </div> <!-- END CUSTOMER PROTECTION -->
+
+          </div> <!-- END DELIVERY PROTECTION ROW -->
 
           <div class="skyro-available">
+
+
             <div class="skyro-available-icon">💳</div>
 
             <div class="skyro-minimum-note">
@@ -359,76 +467,14 @@
             </div>
           </div>
 
-          <!-- START PRODUCT VOUCHERS -->
-          <div class="voucher-section">
-
-            <div class="voucher-header">
-
-              <h3>Available Vouchers</h3>
-
-              <div class="voucher-nav">
-                <button onclick="scrollVoucher(-1)">❮</button>
-                <button onclick="scrollVoucher(1)">❯</button>
-              </div>
-
-            </div>
-
-            <div id="voucherList" class="voucher-list"></div>
-
-          </div>
-
-          <!-- START PRODUCT VARIANTS -->
-          <div id="variantContainer" class="variant-container"></div>
-          <!-- END PRODUCT VARIANTS -->
-
-          <div class="customer-protection">
-
-            <div class="protection-header">
-              <span class="protection-icon">🛡</span>
-              <strong>Customer Protection</strong>
-            </div>
-
-            <div class="protection-list">
-              <span>✔ Secure Payment</span>
-              <span>✔ Quality Checked</span>
-              <span>✔ Fast & Safe Shipping</span>
-            </div>
-
-            <div id="protectionMore" class="protection-more">
-              <span>✔ Easy Return & Refund</span>
-              <span>✔ Trusted Seller Support</span>
-            </div>
-
-            <button id="protectionToggle" class="protection-toggle" type="button">
-              Read More
-            </button>
-
-          </div>
-          <!-- END PRODUCT VOUCHERS -->
-
-          <div class="quantity-box">
-            <button id="minusBtn" type="button">−</button>
-            <input type="number" id="quantityInput" value="1" min="1" />
-            <button id="plusBtn" type="button">+</button>
-          </div>
-
-          <div class="product-action-buttons">
-
-            <button id="addToCartBtn" class="add-cart-btn" type="button">
-              🛒 Add to Cart
-            </button>
-
-            <button id="buyNowBtn" class="buy-now-btn" type="button">
-              ⚡ Buy Now
-            </button>
-
-          </div>
-
           <p id="message" class="message"></p>
-        </div>
 
+        </div> <!-- END PRODUCT INFO -->
+
+      </div> <!-- END PRODUCT CONTAINER -->
 
     </section>
+
 
     <div class="product-reviews-section">
 
@@ -657,6 +703,31 @@
     </div>
   </div>
 
+
+  <!-- PRODUCT IMAGE ZOOM VIEWER -->
+  <div id="productZoomModal" class="product-zoom-modal" role="dialog" aria-modal="true" aria-label="Product image zoom"
+    aria-hidden="true">
+
+    <button type="button" id="productZoomClose" class="product-zoom-close" aria-label="Close image">
+      ✕
+    </button>
+
+    <button type="button" id="productZoomPrev" class="product-zoom-prev" aria-label="Previous image">
+      ❮
+    </button>
+
+    <div class="product-zoom-stage">
+      <img id="productZoomImage" src="" alt="Enlarged product image" draggable="false">
+    </div>
+
+    <button type="button" id="productZoomNext" class="product-zoom-next" aria-label="Next image">
+      ❯
+    </button>
+
+  </div>
+  <!-- END PRODUCT IMAGE ZOOM VIEWER -->
+
+
   <div id="reviewImageModal" class="review-image-modal">
     <span onclick="closeReviewImage()">✕</span>
     <img id="reviewImagePreview">
@@ -744,7 +815,7 @@
 
   <script src="../Admin/supabase.js?v=50001"></script>
 
-  <script src="product.js?v=2026.10.09.03"></script>
+  <script src="product.js?v=2026.10.11.01"></script>
 
   <script src="../chat/chat.js?v=10021"></script>
 

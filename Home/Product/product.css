@@ -3912,21 +3912,73 @@ body {
 }
 
 
-/* PRICE + DELIVERY SIDE BY SIDE */
+
+/* DESKTOP PRICE + VOUCHER + DELIVERY */
 
 @media (min-width: 1025px) {
+
   .product-info .price-delivery-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+    flex-wrap: nowrap;
+    gap: 8px;
     width: 100%;
   }
 
   .product-info .price-row {
-    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    gap: 6px;
     min-width: 0;
+    position: relative;
+  }
+
+  .product-info #desktopVoucherSlot {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .product-info #desktopVoucherSlot .voucher-section {
+    position: static;
+    width: fit-content !important;
+    min-width: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .product-info #desktopVoucherSlot .voucher-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    min-height: 30px;
+    padding: 5px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .product-info #desktopVoucherSlot .voucher-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 340px;
+    max-width: 90vw;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+  }
+
+  .product-info #desktopVoucherSlot .voucher-panel[hidden] {
+    display: none !important;
   }
 
   .product-info .price-delivery-row .delivery-badge {
@@ -3939,7 +3991,9 @@ body {
     align-self: center !important;
     gap: 7px !important;
   }
+
 }
+
 
 /* MOBILE: STACK PRICE AND DELIVERY */
 
@@ -4451,5 +4505,502 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .product-left .product-gallery-slider #productImg {
     transition: none !important;
+  }
+}
+
+
+/* COD + VOUCHERS COMPACT LAYOUT */
+
+.product-info .payment-voucher-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.product-info .payment-voucher-row #codAvailable {
+  margin: 0 !important;
+  padding: 9px 12px !important;
+  font-size: 12px;
+}
+
+.product-info .payment-voucher-row .voucher-section {
+  display: block;
+  flex: 1 1 150px;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.product-info .voucher-toggle-btn {
+  padding: 9px 12px;
+  border: 1px solid #d7e3f0;
+  background: #f3f8ff;
+  border-radius: 8px;
+  color: #1663a0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.product-info .voucher-panel {
+  flex-basis: 100%;
+  min-width: 0;
+}
+
+.product-info .voucher-panel[hidden] {
+  display: none !important;
+}
+
+
+
+/* FINAL COMPACT COD + VOUCHER DESIGN */
+
+.product-info .payment-voucher-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.product-info .payment-voucher-row #codAvailable {
+  flex: 0 0 auto;
+  width: fit-content !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+}
+
+.product-info .payment-voucher-row .voucher-section {
+  flex: 0 0 auto;
+  width: fit-content !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+.product-info .voucher-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.product-info .voucher-panel[hidden] {
+  display: none !important;
+}
+
+
+/* SUBTLE LALAMOVE DELIVERY CARD */
+
+.product-info>.delivery-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: none;
+  color: #334155;
+  padding: 10px 12px;
+}
+
+.product-info>.delivery-badge .delivery-icon {
+  background: #f1f5f9;
+  color: #475569;
+  box-shadow: none;
+}
+
+.product-info>.delivery-badge .delivery-text strong {
+  color: #334155;
+}
+
+.product-info>.delivery-badge .delivery-text span,
+.product-info>.delivery-badge .delivery-text small {
+  color: #64748b;
+}
+
+.product-info>.delivery-badge .delivery-note-btn {
+  background: transparent;
+  color: #64748b;
+  border: none;
+  box-shadow: none;
+}
+
+
+/* COMPACT DESKTOP PRODUCT DETAILS */
+
+@media (min-width: 769px) {
+
+  .product-info {
+    gap: 7px;
+  }
+
+  .product-info .price-delivery-row {
+    margin: 0;
+  }
+
+  .product-info .price-row {
+    gap: 5px;
+  }
+
+  .product-info .desktop-payment-badges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    flex: 0 0 auto;
+  }
+
+  .product-info #desktopCodSlot .cod-available {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+
+  .product-info #desktopVoucherSlot .voucher-section {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .product-info #desktopVoucherSlot .voucher-toggle-btn {
+    padding: 5px 8px;
+    min-height: 28px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .product-info .stock {
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .product-info .variant-container {
+    margin-top: 5px;
+  }
+
+  .product-info .quantity-box,
+  .product-info .product-action-buttons {
+    margin-top: 5px;
+  }
+
+  .product-info>.delivery-badge {
+    margin: 0;
+    padding: 8px 10px;
+  }
+
+}
+
+
+/* LALAMOVE + CUSTOMER PROTECTION COMPACT LAYOUT */
+
+@media (min-width: 769px) {
+
+  .product-info .delivery-protection-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .product-info .delivery-protection-row>.delivery-badge,
+  .product-info .delivery-protection-row>.customer-protection {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+
+  .product-info .delivery-protection-row>.delivery-badge {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+    padding: 8px;
+    color: #334155;
+  }
+
+  .product-info .delivery-protection-row>.delivery-badge .delivery-text strong {
+    color: #1e293b;
+  }
+
+  .product-info .delivery-protection-row>.delivery-badge .delivery-text span,
+  .product-info .delivery-protection-row>.delivery-badge .delivery-text small {
+    color: #475569;
+  }
+
+  .product-info .delivery-protection-row>.delivery-badge .delivery-icon {
+    background: #e2e8f0;
+    color: #334155;
+    flex-shrink: 0;
+  }
+
+
+  .product-info .delivery-protection-row>.customer-protection {
+    padding: 8px;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .product-info .delivery-protection-row {
+    display: contents;
+  }
+
+}
+
+
+/* COD WARNING ICON BESIDE MESSAGE */
+
+.cod-warning .cod-warning-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cod-warning .cod-warning-message .cod-warning-icon {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.cod-warning .cod-warning-message p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+
+/* LOCK ICON BESIDE COD WARNING TITLE */
+
+.cod-warning .cod-warning-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cod-warning .cod-warning-heading .cod-warning-icon {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.cod-warning .cod-warning-content>p {
+  margin: 5px 0 0;
+}
+
+
+/* MOBILE VOUCHERS: ALWAYS VISIBLE + SWIPEABLE */
+
+@media (max-width: 768px) {
+  .product-info .voucher-toggle-btn {
+    display: none !important;
+  }
+
+  .product-info .voucher-panel {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .product-info .voucher-section {
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .product-info .voucher-list {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+}
+
+
+/* HIDE VOUCHER PREV/NEXT BUTTONS ON MOBILE ONLY */
+
+@media (max-width: 768px) {
+  .product-info .voucher-nav {
+    display: none !important;
+  }
+
+  .product-info .voucher-list {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+}
+
+
+/* LALAMOVE SAME DESIGN ON MOBILE AND DESKTOP */
+
+.product-info .delivery-badge {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px;
+  box-shadow: none !important;
+  padding: 10px 12px;
+  color: #334155 !important;
+}
+
+.product-info .delivery-badge .delivery-icon {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+}
+
+.product-info .delivery-badge .delivery-text strong {
+  color: #334155 !important;
+}
+
+.product-info .delivery-badge .delivery-text span,
+.product-info .delivery-badge .delivery-text small {
+  color: #64748b !important;
+}
+
+.product-info .delivery-badge .delivery-note-btn {
+  background: transparent !important;
+  color: #64748b !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+/* ========================================
+   PRODUCT IMAGE FULLSCREEN ZOOM VIEWER
+======================================== */
+
+.product-zoom-modal {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  background: rgba(10, 15, 25, 0.96);
+  z-index: 9999999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.product-zoom-modal.show {
+  display: flex;
+}
+
+.product-zoom-stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#productZoomImage {
+  max-width: 90vw;
+  max-height: 88dvh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.product-zoom-close,
+.product-zoom-prev,
+.product-zoom-next {
+  position: absolute;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.product-zoom-close {
+  top: 18px;
+  right: 18px;
+}
+
+
+.product-zoom-prev {
+  left: var(--zoom-prev-left, 18px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.product-zoom-next {
+  right: var(--zoom-next-right, 18px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+.product-zoom-close:hover,
+.product-zoom-prev:hover,
+.product-zoom-next:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* MOBILE ZOOM VIEWER */
+
+@media (max-width: 768px) {
+  #productZoomImage {
+    max-width: 100vw;
+    max-height: 85dvh;
+  }
+
+  .product-zoom-close {
+    top: 14px;
+    right: 14px;
+  }
+
+  .product-zoom-prev,
+  .product-zoom-next {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .product-zoom-prev {
+    left: 8px;
+  }
+
+  .product-zoom-next {
+    right: 8px;
   }
 }
