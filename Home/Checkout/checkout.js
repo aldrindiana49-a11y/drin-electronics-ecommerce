@@ -973,6 +973,25 @@ if (phoneInput) {
 }
 
 
+if (emailInput) {
+  emailInput.addEventListener("input", () => {
+    let value = emailInput.value.replace(
+      /[^a-zA-Z0-9._@+-]/g,
+      ""
+    );
+
+    const atIndex = value.indexOf("@");
+
+    if (atIndex !== -1) {
+      value =
+        value.slice(0, atIndex + 1) +
+        value.slice(atIndex + 1).replace(/@/g, "");
+    }
+
+    emailInput.value = value;
+  });
+}
+
 
 function cleanImageForOrder(image) {
   const img = String(image || "");
@@ -2142,6 +2161,25 @@ async function placeOrder() {
     )
       .trim()
       .toLowerCase();
+
+
+  const checkoutEmailPattern =
+    /^[a-zA-Z0-9_+-]+(?:\.[a-zA-Z0-9_+-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
+
+  if (!checkoutEmailPattern.test(email)) {
+    emailInput?.classList.add("input-error");
+
+    showOrderModal(
+      "Invalid Email",
+      "Please enter a valid email address before placing your order."
+    );
+
+    enableCustomerEdit();
+    emailInput?.focus();
+
+    return resetPlaceOrder();
+  }
+
 
   const selectedPayment =
     document.querySelector(
@@ -3901,8 +3939,10 @@ saveCustomerBtn?.addEventListener("click", () => {
         .trim()
         .toLowerCase();
 
+
     const validEmail =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      /^[a-zA-Z0-9_+-]+(?:\.[a-zA-Z0-9_+-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
+
 
     if (!validEmail.test(email)) {
 
