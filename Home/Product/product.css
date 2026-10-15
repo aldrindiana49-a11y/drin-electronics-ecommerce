@@ -566,9 +566,9 @@
 .mobile-nav-item {
   flex: 1 !important;
 
-  width: 25% !important;
-  max-width: 25% !important;
-  min-width: 25% !important;
+  width: 20% !important;
+  max-width: 20% !important;
+  min-width: 0 !important;
 
   border: none;
   background: transparent;
@@ -5002,5 +5002,189 @@ body {
 
   .product-zoom-next {
     right: 8px;
+  }
+}
+
+/* MOBILE BOTTOM NAV - 5 BUTTONS FIX */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 0;
+    box-sizing: border-box;
+  }
+
+  .mobile-bottom-nav .mobile-nav-item {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 2px;
+    font-size: 11px;
+    box-sizing: border-box;
+  }
+
+  .mobile-bottom-nav .mobile-nav-icon {
+    font-size: 19px;
+  }
+
+  .mobile-bottom-nav .mobile-nav-item span {
+    font-size: 10px;
+  }
+}
+
+/* SHOW PRODUCT PAGE HAMBURGER ON MOBILE */
+@media (max-width: 768px) {
+  .navbar .nav-left #menuBtn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 26px;
+    cursor: pointer;
+  }
+}
+
+/* COMPACT GRID CATEGORY BUTTON */
+@media (max-width: 768px) {
+  .navbar .nav-left #menuBtn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+
+    padding: 0 !important;
+    flex-shrink: 0;
+
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+
+  .navbar .nav-left #menuBtn svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .navbar .nav-left #menuBtn span {
+    display: none !important;
+  }
+}
+
+
+/* COMPACT PRODUCT CATEGORY SIDEBAR */
+#sidebar .sidebar-body {
+  padding-top: 0 !important;
+}
+
+#sidebar .sidebar-section {
+  margin: 0 !important;
+  padding: 8px 12px !important;
+}
+
+#sidebar #dynamicSidebarCategories {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+#sidebar #dynamicSidebarCategories li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#sidebar #dynamicSidebarCategories a {
+  display: block !important;
+  padding: 10px 12px !important;
+  font-size: 13px;
+  line-height: 1.35;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+#sidebar #dynamicSidebarCategories a:hover {
+  background: #ecfeff;
+  color: #0891b2;
+}
+
+#sidebar {
+  overflow-y: auto;
+}
+
+/* DESKTOP CATEGORIES - LEFT OF MAIN PRODUCT CARD */
+.product-side-categories {
+  display: none;
+}
+
+@media (min-width: 1400px) {
+  .product-side-categories {
+    display: block;
+    position: fixed;
+    top: 185px;
+    left: 20px;
+    width: 190px;
+    max-height: calc(100vh - 205px);
+    overflow-y: auto;
+    z-index: 30;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+  }
+
+  .product-side-categories h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    color: #111827;
+  }
+
+  #desktopProductCategories {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  #desktopProductCategories a {
+    display: block;
+    padding: 7px 0;
+    font-size: 13px;
+    color: #475569;
+    text-decoration: none;
+    background: transparent !important;
+  }
+
+  #desktopProductCategories a:hover {
+    color: #0891b2;
+    text-decoration: underline;
+  }
+}
+
+/* HIDE CATEGORY GRID ICON ON DESKTOP ONLY */
+@media (min-width: 1025px) {
+  .navbar .nav-left #menuBtn {
+    display: none !important;
+  }
+}
+
+/* KEEP CATEGORY GRID ICON ON MOBILE */
+@media (max-width: 768px) {
+  .navbar .nav-left #menuBtn {
+    display: flex !important;
   }
 }

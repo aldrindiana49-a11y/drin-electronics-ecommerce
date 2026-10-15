@@ -62,7 +62,7 @@
 
   <link rel="stylesheet" href="../style.css?v=10003" />
   <link rel="stylesheet" href="../chat/chat.css?v=20">
-  <link rel="stylesheet" href="product.css?v=2026.10.11.01" />
+  <link rel="stylesheet" href="product.css?v=2026.10.15.10" />
 </head>
 
 <body>
@@ -86,19 +86,18 @@
 
   <nav class="navbar">
     <div class="nav-left">
-      <button class="menu-btn" style="display:none;" type="button" id="menuBtn" aria-label="Open Menu">☰</button>
-      <button class="mobile-nav-item active home-mobile-btn" onclick="goHome()">
-
-        <div class="mobile-nav-icon home-icon">
-          <img id="mobileNavLogo"
-            src="https://zdinvxowzpkolbfzpcac.supabase.co/storage/v1/object/public/product-images/logo.png" alt="Logo"
-            class="mobile-nav-logo" />
-        </div>
-
-        <small class="home-mobile-label">Home</small>
-
+      <button class="menu-btn" type="button" id="menuBtn" aria-label="Browse Categories" title="Categories">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+        </svg>
       </button>
+
       <a href="../index.html" class="home-link" aria-label="Home">
+
         <span class="nav-logo-box">
           <img id="navLogo"
             src="https://zdinvxowzpkolbfzpcac.supabase.co/storage/v1/object/public/product-images/logo.png"
@@ -167,59 +166,49 @@
     </div>
   </div>
 
+
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-top-row">
         <div class="sidebar-mini-brand">
-          <h2>Drin Electronics</h2>
-          <p>Find your parts fast</p>
+          <h2>Shop by Category</h2>
+          <p>Explore Drin Electronics products</p>
         </div>
-
         <button class="sidebar-close-btn" type="button" onclick="closeSidebar()">✕</button>
       </div>
     </div>
 
-    <div class="sidebar-section">
+    <div class="sidebar-body">
+      <div class="sidebar-section">
+        <ul class="sidebar-links">
+          <li>
+            <a href="../index.html">
+              🛍 All Products
+            </a>
+          </li>
+        </ul>
 
-      <h3 class="sidebar-title">Shop</h3>
+        <h3 class="sidebar-title">📂 Categories</h3>
 
-      <ul class="sidebar-links" id="dynamicSidebarCategories">
-
-        <li>
-          <a href="../home/index.html">
-            All Products
-          </a>
-        </li>
-
-      </ul>
-
-    </div>
-
-    <div class="sidebar-section">
-      <h3 class="sidebar-title">Account</h3>
-      <ul class="sidebar-links">
-        <li><a href="#">Notifications</a></li>
-        <li><a href="#">Profile</a></li>
-        <li><a href="../home/login.html">Login</a></li>
-        <li><a href="../home/signup.html">Sign Up</a></li>
-      </ul>
-    </div>
-
-    <div class="sidebar-section">
-      <h3 class="sidebar-title">Company</h3>
-      <ul class="sidebar-links">
-        <li><a href="#">Branch Locator</a></li>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
+        <ul class="sidebar-links" id="dynamicSidebarCategories">
+          <li>Loading categories...</li>
+        </ul>
+      </div>
     </div>
   </aside>
+
 
   <div class="overlay" id="overlay"></div>
 
   <main class="main-content">
 
     <section class="product-detail-section">
+
+      <!-- DESKTOP CATEGORIES BESIDE MAIN PRODUCT CARD -->
+      <aside class="product-side-categories" aria-label="Shop by Category">
+        <h3>Categories</h3>
+        <nav id="desktopProductCategories"></nav>
+      </aside>
 
       <div class="product-container">
 
@@ -262,7 +251,7 @@
 
           <!-- PRODUCT DESCRIPTION UNDER IMAGE -->
           <div class="product-description-section">
-            <h3 class="desc-title">Product Description</h3>
+            <h3 class="desc-title">Short Description</h3>
 
             <p class="description description-limit" id="productDescription"></p>
 
@@ -467,6 +456,51 @@
             </div>
           </div>
 
+
+          <!-- PICKUP STORE / SHIPPING ORIGIN -->
+          <div class="pickup-store-card" style="
+  margin-top:14px;
+  padding:16px;
+  border:1px solid #dbe4ee;
+  border-radius:12px;
+  background:#f8fafc;
+  color:#334155;
+  font-size:13px;
+  line-height:1.7;
+">
+            <div style="
+    font-size:15px;
+    font-weight:700;
+    color:#0f172a;
+    margin-bottom:10px;
+  ">
+              📍 Pickup Store / Shipping Origin
+            </div>
+
+            <strong>Drin Electronics Pasig</strong>
+
+            <div style="margin-top:6px;">
+              Pinalad Road, Camachille Street,<br>
+              Centennial 2A, Nagpayong,<br>
+              Brgy. Pinagbuhatan, Pasig City
+            </div>
+
+            <div style="margin-top:9px;">
+              <strong>Landmark:</strong> Villa Esguerra Half Court
+            </div>
+
+            <div>
+              <strong>Contact:</strong>
+              <a href="tel:09157765642" style="
+      color:#2563eb;
+      text-decoration:none;
+      font-weight:600;
+    ">0915 776 5642</a>
+            </div>
+          </div>
+          <!-- END PICKUP STORE / SHIPPING ORIGIN -->
+
+
           <p id="message" class="message"></p>
 
         </div> <!-- END PRODUCT INFO -->
@@ -494,6 +528,11 @@
   </main>
 
   <div class="mobile-bottom-nav">
+
+    <button class="mobile-nav-item" type="button" onclick="goHome()">
+      <div class="mobile-nav-icon">🏠</div>
+      <span>Home</span>
+    </button>
 
     <button class="mobile-nav-item" onclick="openWebsiteChat()">
 
@@ -815,7 +854,7 @@
 
   <script src="../Admin/supabase.js?v=50001"></script>
 
-  <script src="product.js?v=2026.10.11.01"></script>
+  <script src="product.js?v=2026.10.15.11"></script>
 
   <script src="../chat/chat.js?v=10021"></script>
 

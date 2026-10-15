@@ -1043,7 +1043,14 @@ async function loadProductsFromSupabase() {
     products = cached;
 
     currentPage = 1;
-    renderProducts(products);
+
+    const pendingCategory = localStorage.getItem("selectedCategory");
+
+    if (pendingCategory) {
+      filterByCategory(pendingCategory);
+    } else {
+      renderProducts(products);
+    }
 
     hideProductLoader();
 
@@ -1198,20 +1205,6 @@ async function loadProductsFromSupabase() {
 
 })();
 
-const selectedCategory =
-  localStorage.getItem("selectedCategory");
-
-if (selectedCategory) {
-
-  setTimeout(() => {
-
-    filterByCategory(selectedCategory);
-
-    localStorage.removeItem("selectedCategory");
-
-  }, 1200);
-
-}
 
 // TEMP DISABLED: Homepage voucher removed for faster loading
 // Voucher still active on Product Page

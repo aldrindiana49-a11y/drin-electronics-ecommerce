@@ -2159,45 +2159,66 @@ function goHome() {
   window.location.href = "../index.html";
 }
 
+
 function renderDynamicSidebarCategories() {
-
-  const sidebar =
-    document.getElementById("dynamicSidebarCategories");
-
+  const sidebar = document.getElementById("dynamicSidebarCategories");
   if (!sidebar) return;
 
-  const categories = [
-    ...new Set(
-      products
-        .map(p => p.category)
-        .filter(Boolean)
-    )
+  // Same default categories as Homepage
+  const defaultCategories = [
+    "Power Amplifier",
+    "Speaker & Tweeter",
+    "Audio Processor",
+    "Transistor / MOSFET",
+    "Capacitor",
+    "Diode",
+    "Resistor",
+    "Integrated Circuits (IC)",
+    "PCB / Boards",
+    "Connectors & Terminals",
+    "Wires & Cables",
+    "Relay",
+    "Others"
   ];
 
-  sidebar.innerHTML = `
-    <li>
-      <a href="../index.html">
-        All Products
-      </a>
-    </li>
+  let saved = [];
+  try {
+    saved = JSON.parse(localStorage.getItem("drinCategories") || "[]");
+    if (!Array.isArray(saved)) saved = [];
+  } catch (error) {
+    saved = [];
+  }
 
-    ${categories.map(category => `
-      <li>
-        <a
-          href="../index.html"
-          onclick="
-            localStorage.setItem(
-              'selectedCategory',
-              '${category}'
-            );
-          "
-        >
-          ${category}
-        </a>
-      </li>
-    `).join("")}
-  `;
+  const categories = [...defaultCategories];
+
+  saved.forEach(cat => {
+    const name = String(cat?.name || "").trim();
+    if (!name) return;
+    if (cat.status && cat.status !== "active") return;
+
+    if (!categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+      categories.push(name);
+    }
+  });
+
+  sidebar.innerHTML = "";
+
+  categories.forEach(category => {
+    const li = document.createElement("li");
+    const link = document.createElement("a");
+
+    link.href = "../index.html";
+    link.textContent = category;
+
+    link.addEventListener("click", () => {
+      localStorage.setItem("selectedCategory", category);
+    });
+
+    li.appendChild(link);
+    sidebar.appendChild(li);
+  });
 }
+
 
 const desktopSearchInput =
   document.getElementById("desktopSearchInput");
@@ -3602,3 +3623,39 @@ window.closeSkyroInfoModal = closeSkyroInfoModal;
     updateTransform();
   });
 })();
+
+/* DESKTOP CATEGORY LINKS - SAME AS MOBILE SIDEBAR */
+function renderDesktopProductCategories() {
+  const nav = document.getElementById("desktopProductCategories");
+  const mobileList = document.getElementById("dynamicSidebarCategories");
+
+  if (!nav || !mobileList) return;
+
+  nav.replaceChildren();
+
+  const allLink = document.createElement("a");
+  allLink.href = "../index.html";
+  allLink.textContent = "All Products";
+  allLink.addEventListener("click", () => {
+    localStorage.removeItem("selectedCategory");
+  });
+  nav.appendChild(allLink);
+
+  mobileList.querySelectorAll("a").forEach(link => {
+    const category = link.textContent.trim();
+
+    if (!category || category === "All Products") return;
+
+    const desktopLink = document.createElement("a");
+    desktopLink.href = "../index.html";
+    desktopLink.textContent = category;
+
+    desktopLink.addEventListener("click", () => {
+      localStorage.setItem("selectedCategory", category);
+    });
+
+    nav.appendChild(desktopLink);
+  });
+}
+
+renderDesktopProductCategories();
