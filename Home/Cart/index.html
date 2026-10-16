@@ -36,7 +36,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cart - Drin Electronics</title>
-  <link rel="stylesheet" href="cart.css?v=50003" />
+
+  <!-- PREMIUM INTER FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CART CSS -->
+  <link rel="stylesheet" href="cart.css?v=50007">
 </head>
 
 <body>
@@ -117,14 +124,23 @@
 
       </div>
     </aside>
+
   </main>
+
+  <section class="cart-recommendations" id="cartRecommendations" hidden>
+    <h2>You May Also Like</h2>
+    <p>Recommended products for you</p>
+    <div class="cart-recommendations-grid" id="cartRecommendationsGrid"></div>
+    <button type="button" id="cartRecommendationsMore" hidden>View More ↓</button>
+  </section>
+
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
   <script src="../Admin/supabase.js?v=10002"></script>
 
-  <script src="cart.js?v=90002"></script>
+  <script src="cart.js?v=90008"></script>
 
   <footer class="site-footer">
 

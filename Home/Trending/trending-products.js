@@ -64,8 +64,8 @@
     section.innerHTML = `
       <div class="trending-outer">
         <button class="trending-outside-btn trending-outside-prev" type="button" onclick="scrollTrendingProducts(-1)">
-          &lt;
-        </button>
+         ‹
+       </button>
 
         <div class="trending-products-wrap">
           <div class="trending-products-header">
@@ -102,7 +102,7 @@
         </div>
 
         <button class="trending-outside-btn trending-outside-next" type="button" onclick="scrollTrendingProducts(1)">
-          &gt;
+          ›
         </button>
       </div>
     `;

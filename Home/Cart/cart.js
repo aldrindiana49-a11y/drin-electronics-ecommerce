@@ -157,7 +157,7 @@ function renderCart() {
     cartTotal.textContent = "₱0";
 
     if (selectedCount) selectedCount.textContent = "0";
-    if (checkoutBtn) checkoutBtn.disabled = true;
+    if (checkoutBtn) checkoutBtn.disabled = false;
 
     return;
   }
@@ -292,9 +292,13 @@ function renderCart() {
     }, 0);
   }
 
+
   if (checkoutBtn) {
-    checkoutBtn.disabled = selectedItems.length === 0;
+    // Allow clicking Checkout to show the selection notice.
+    // Disable only when the entire cart is empty.
+    checkoutBtn.disabled = false;
   }
+
 
   const selectAll = document.getElementById("selectAll");
 
@@ -495,10 +499,25 @@ function goToCheckout() {
     return sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0));
   }, 0);
 
-  if (selectedItems.length === 0) {
-    alert("Please select at least one item to checkout.");
+
+
+  if (cart.length === 0) {
+    showCartNotice(
+      "Your Cart Is Empty",
+      "Your shopping cart is currently empty. Browse our products and add your favorites before checkout."
+    );
     return;
   }
+
+  if (selectedItems.length === 0) {
+    showCartNotice(
+      "No Product Selected",
+      "Please select at least one product from your cart before proceeding to checkout."
+    );
+    return;
+  }
+
+
 
   if (selectedItems.length > MAX_CHECKOUT_ROWS) {
     return;
@@ -720,3 +739,227 @@ document.addEventListener(
 
   }
 );
+
+
+/* =====================================
+   CART - YOU MAY ALSO LIKE
+   4 products initially, up to 8
+===================================== */
+
+async function loadCartRecommendations() {
+  const section = document.getElementById("cartRecommendations");
+  const grid = document.getElementById("cartRecommendationsGrid");
+  const moreBtn = document.getElementById("cartRecommendationsMore");
+
+  if (!section || !grid || !moreBtn) return;
+  if (typeof supabaseClient === "undefined") return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("products")
+      .select("*")
+      .limit(200);
+
+    if (error) throw error;
+
+    const cartIds = new Set(
+      cart.map(item => String(item.id || item.productId))
+    );
+
+    const cartCategories = new Set(
+      cart.map(item => String(item.category || "").trim().toLowerCase())
+        .filter(Boolean)
+    );
+
+    // Find categories from Supabase if cart items lack category.
+    (data || []).forEach(product => {
+      if (cartIds.has(String(product.id)) && product.category) {
+        cartCategories.add(String(product.category).trim().toLowerCase());
+      }
+    });
+
+
+    const availableProducts = (data || []).filter(product => {
+      if (cartIds.has(String(product.id))) return false;
+
+      const variations = Array.isArray(product.variations)
+        ? product.variations
+        : [];
+
+
+      const stock = variations.length
+        ? variations.reduce(
+          (sum, v) => sum + Math.max(0, Number(v.stock) || 0),
+          0
+        )
+        : Number(product.stock) || 0;
+
+      // Exclude products with no available stock
+      if (stock <= 0) return false;
+
+      return true;
+
+    });
+
+    // Randomize all available products (Fisher-Yates shuffle)
+    for (let i = availableProducts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+
+      [availableProducts[i], availableProducts[j]] =
+        [availableProducts[j], availableProducts[i]];
+    }
+
+    // Show maximum 8 random recommendations
+    const recommendations = availableProducts.slice(0, 8);
+
+
+    if (!recommendations.length) {
+      section.hidden = true;
+      return;
+    }
+
+    grid.replaceChildren();
+
+    recommendations.forEach((product, index) => {
+      const variations = Array.isArray(product.variations)
+        ? product.variations
+        : [];
+
+      const availableVariant = variations.find(
+        v => Number(v.stock) > 0
+      );
+
+      const price = Number(
+        availableVariant?.price ?? product.price ?? 0
+      );
+
+      const discount = Number(
+        availableVariant?.discountPrice ??
+        availableVariant?.discount_price ??
+        product.discount_price ??
+        product.discountPrice ??
+        0
+      );
+
+      const finalPrice =
+        discount > 0 && discount < price ? discount : price;
+
+
+      const image =
+        product.image ||
+        "../Image/no-image.png";
+
+
+      const card = document.createElement("a");
+      card.className = "cart-recommendation-card";
+      card.href = `../Product/index.html?id=${encodeURIComponent(product.id)}`;
+
+      const imageEl = document.createElement("img");
+      // Store image URL without downloading it yet
+      imageEl.dataset.src = image;
+      imageEl.alt = product.title || "Product";
+      imageEl.loading = "lazy";
+      imageEl.onerror = () => {
+        imageEl.onerror = null;
+        imageEl.src = "../Image/no-image.png";
+      };
+
+      const info = document.createElement("div");
+      info.className = "cart-recommendation-info";
+
+      const name = document.createElement("div");
+      name.className = "cart-recommendation-name";
+      name.textContent = product.title || "Unnamed Product";
+
+
+      const priceEl = document.createElement("div");
+      priceEl.className = "cart-recommendation-price";
+
+      const salePrice = document.createElement("span");
+      salePrice.className = "cart-sale-price";
+      salePrice.textContent = `₱${finalPrice.toLocaleString("en-PH")}`;
+
+      priceEl.appendChild(salePrice);
+
+      // Show original price and discount only when valid
+      if (discount > 0 && discount < price) {
+        const originalPrice = document.createElement("span");
+        originalPrice.className = "cart-original-price";
+        originalPrice.textContent = `₱${price.toLocaleString("en-PH")}`;
+
+        const discountBadge = document.createElement("span");
+        discountBadge.className = "cart-discount-badge";
+        discountBadge.textContent =
+          `-${Math.round(((price - discount) / price) * 100)}%`;
+
+        priceEl.append(originalPrice, discountBadge);
+      }
+
+      info.append(name, priceEl);
+
+      card.append(imageEl, info);
+
+      // Staggered product card loading
+      card.style.opacity = "0";
+      card.style.transform = "translateY(10px)";
+      card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+
+      grid.appendChild(card);
+
+      // First 4 appear one by one
+      setTimeout(() => {
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      }, index * 120);
+    });
+
+    const cards = [...grid.children];
+    let visible = 4;
+
+
+    function updateVisibility() {
+      cards.forEach((card, index) => {
+        const shouldShow = index < visible;
+
+        card.hidden = !shouldShow;
+
+        if (!shouldShow) return;
+
+        const img = card.querySelector("img");
+
+        // Download image only when its card becomes visible
+        if (img && img.dataset.src) {
+          img.src = img.dataset.src;
+          delete img.dataset.src;
+        }
+      });
+
+      moreBtn.hidden = visible >= cards.length;
+    }
+
+
+    moreBtn.onclick = () => {
+      visible = Math.min(visible + 4, cards.length);
+      updateVisibility();
+    };
+
+    // Preserve the CSS hidden state on each card.
+    if (!document.getElementById("cartRecommendationHideStyle")) {
+      const style = document.createElement("style");
+      style.id = "cartRecommendationHideStyle";
+      style.textContent =
+        ".cart-recommendation-card[hidden]{display:none!important;}";
+      document.head.appendChild(style);
+    }
+
+    updateVisibility();
+    section.hidden = false;
+
+  } catch (error) {
+    console.error("Cart recommendations error:", error);
+    section.hidden = true;
+  }
+}
+
+loadCartRecommendations();
+
