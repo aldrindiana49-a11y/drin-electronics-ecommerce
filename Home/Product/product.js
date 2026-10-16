@@ -207,11 +207,40 @@ function renderVariantSelector() {
               btn.classList.remove("active")
             );
 
+
           this.classList.add("active");
 
           updateVariantUI(variant);
         });
+
+        // HOVER = PREVIEW ONLY, NOT SELECTED
+        button.addEventListener("mouseenter", function () {
+          if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+            return;
+          }
+
+          const variant = variants[Number(this.dataset.index)];
+          if (!variant) return;
+
+          updateVariantUI(variant);
+        });
+
+        // RESTORE THE CLICKED VARIATION WHEN MOUSE LEAVES
+        button.addEventListener("mouseleave", function () {
+          if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+            return;
+          }
+
+          if (selectedVariant) {
+            updateVariantUI(selectedVariant);
+          } else {
+            // Restore original product display
+            const defaultVariant = getBestVariant(product);
+            if (defaultVariant) updateVariantUI(defaultVariant);
+          }
+        });
       });
+
 
     document
       .getElementById("loadMoreVariantsBtn")

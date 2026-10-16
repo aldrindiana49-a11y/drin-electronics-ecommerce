@@ -723,7 +723,7 @@ function filterByCategory(categoryName) {
     (product) => safeText(product.category).toLowerCase() === categoryName.toLowerCase()
   );
 
-  renderHomepageProducts(filtered);
+  renderProducts(filtered);
 
   const section = document.getElementById("productsSection");
   if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1823,59 +1823,115 @@ function sortProductsStockLast(list = []) {
   return [...inStock, ...outStock];
 }
 
+
+
+/* SMART NUMBERED PRODUCT PAGINATION */
+
+let paginatedProducts = [];
+
 function renderProducts(list) {
-  const sortedList = sortProductsStockLast(
-    [...list].sort(() => Math.random() - 0.5)
+  const shuffled = [...list];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  paginatedProducts = sortProductsStockLast(shuffled);
+  currentPage = 1;
+
+  displayProductPage();
+}
+
+function displayProductPage() {
+  const start = (currentPage - 1) * pageSize;
+
+  renderHomepageProducts(
+    paginatedProducts.slice(start, start + pageSize)
   );
 
-  const start = (currentPage - 1) * pageSize;
-  const end = start + pageSize;
-
-  const pageItems = sortedList.slice(start, end);
-
-  renderHomepageProducts(pageItems);
-
-  renderPagination(sortedList);
+  renderPagination(paginatedProducts);
 }
 
 function renderPagination(list) {
   const container = document.getElementById("paginationContainer");
   if (!container) return;
 
+  container.replaceChildren();
+
   const totalPages = Math.ceil(list.length / pageSize);
+  if (totalPages <= 1) return;
 
-  let html = "";
+  function addButton(label, page, active = false) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.classList.toggle("active", active);
+    button.disabled = page < 1 || page > totalPages;
 
-  // Prev (dynamic safe)
-  if (currentPage > 1) {
-    html += `<button onclick="changePage(${currentPage - 1})">Prev</button>`;
+    if (active) {
+      button.setAttribute("aria-current", "page");
+    }
+
+    button.addEventListener("click", () => changePage(page));
+    container.appendChild(button);
   }
 
-  // Pages
-  for (let i = 1; i <= totalPages; i++) {
-    html += `<button onclick="changePage(${i})" ${i === currentPage ? 'class="active"' : ""}>${i}</button>`;
+  function addDots() {
+    const dots = document.createElement("span");
+    dots.className = "pagination-dots";
+    dots.textContent = "…";
+    container.appendChild(dots);
   }
 
-  // Next (dynamic safe)
-  if (currentPage < totalPages) {
-    html += `<button onclick="changePage(${currentPage + 1})">Next</button>`;
+  addButton("‹", currentPage - 1);
+
+  let previous = 0;
+
+  for (let page = 1; page <= totalPages; page++) {
+    const show =
+      page === 1 ||
+      page === totalPages ||
+      Math.abs(page - currentPage) <= 1 ||
+      (currentPage <= 2 && page <= 3) ||
+      (currentPage >= totalPages - 1 && page >= totalPages - 2);
+
+    if (!show) continue;
+
+    if (previous && page - previous > 1) {
+      addDots();
+    }
+
+    addButton(String(page), page, page === currentPage);
+    previous = page;
   }
 
-  container.innerHTML = html;
+  addButton("›", currentPage + 1);
+
+  const info = document.createElement("span");
+  info.className = "pagination-info";
+  info.textContent = `Page ${currentPage} of ${totalPages}`;
+
+  container.appendChild(info);
 }
 
 function changePage(page) {
+  const totalPages = Math.ceil(paginatedProducts.length / pageSize);
 
-  const list = isSearching ? filteredProducts : products;
-
-  const totalPages = Math.ceil(list.length / pageSize);
-
-  if (page < 1 || page > totalPages) return;
+  if (page < 1 || page > totalPages || page === currentPage) {
+    return;
+  }
 
   currentPage = page;
+  displayProductPage();
 
-  renderProducts(list);
+  document.getElementById("productsSection")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
+
+
 
 /* ===============================
    GLOBAL MAINTENANCE MODE

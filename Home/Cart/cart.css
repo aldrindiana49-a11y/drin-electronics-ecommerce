@@ -868,3 +868,234 @@ body {
 .checkout-page {
   flex: 1;
 }
+
+
+/* CART RECOMMENDED PRODUCTS */
+
+.cart-recommendations[hidden],
+#cartRecommendationsMore[hidden] {
+  display: none !important;
+}
+
+.cart-recommendations {
+  width: calc(100% - 32px);
+  max-width: 1200px;
+  margin: 30px auto 45px;
+  padding: 0;
+}
+
+.cart-recommendations h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 5px;
+}
+
+.cart-recommendations p {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 18px;
+}
+
+.cart-recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.cart-recommendation-card {
+  min-width: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.cart-recommendation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.cart-recommendation-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  background: #f8fafc;
+}
+
+.cart-recommendation-info {
+  padding: 10px;
+}
+
+.cart-recommendation-name {
+  font-size: 13px;
+  color: #111827;
+  line-height: 1.4;
+  height: 36px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.cart-recommendation-price {
+  font-size: 17px;
+  color: #0891b2;
+  font-weight: 800;
+}
+
+#cartRecommendationsMore {
+  display: block;
+  margin: 22px auto 0;
+  padding: 10px 26px;
+  background: white;
+  border: 1px solid #06b6d4;
+  border-radius: 9px;
+  color: #0891b2;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#cartRecommendationsMore:hover {
+  background: #ecfeff;
+}
+
+/* MOBILE: 2 PRODUCTS PER ROW */
+@media (max-width: 768px) {
+  .cart-recommendations {
+    width: calc(100% - 24px);
+    margin: 24px auto 35px;
+  }
+
+  .cart-recommendations h2 {
+    font-size: 18px;
+  }
+
+  .cart-recommendations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .cart-recommendation-name {
+    font-size: 12px;
+  }
+
+  .cart-recommendation-price {
+    font-size: 15px;
+  }
+}
+
+
+/* RECOMMENDED PRODUCT DISCOUNT PRICING */
+
+.cart-recommendation-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 7px;
+  row-gap: 4px;
+}
+
+.cart-sale-price {
+  font-size: 17px;
+  font-weight: 800;
+  color: #dc2626;
+}
+
+.cart-original-price {
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.cart-discount-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fee2e2;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+@media (max-width: 768px) {
+  .cart-sale-price {
+    font-size: 15px;
+  }
+}
+
+
+/* PREMIUM CART RECOMMENDATION TYPOGRAPHY */
+
+.cart-recommendations {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+.cart-recommendations h2 {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #0f172a;
+}
+
+.cart-recommendation-name {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.15px;
+  color: #1e293b;
+  height: 40px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.cart-sale-price {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #e11d48;
+}
+
+.cart-original-price {
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.cart-discount-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 768px) {
+  .cart-recommendations h2 {
+    font-size: 18px;
+  }
+
+  .cart-recommendation-name {
+    font-size: 12px;
+    height: 37px;
+  }
+
+  .cart-sale-price {
+    font-size: 16px;
+  }
+}
+
+/* REMOVE UNDERLINE FROM CART RECOMMENDATIONS */
+
+.cart-recommendation-card,
+.cart-recommendation-card:hover,
+.cart-recommendation-card:focus,
+.cart-recommendation-card:visited {
+  text-decoration: none !important;
+}
+
+.cart-recommendation-name {
+  text-decoration: none !important;
+}
