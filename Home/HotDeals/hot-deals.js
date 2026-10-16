@@ -105,7 +105,7 @@
             <button class="hot-deals-outside-btn hot-deals-outside-prev"
                     type="button"
                     onclick="scrollHotDeals(-1)">
-                &lt;
+                ‹
             </button>
 
             <div class="hot-deals-wrap">
@@ -155,7 +155,7 @@
             <button class="hot-deals-outside-btn hot-deals-outside-next"
                     type="button"
                     onclick="scrollHotDeals(1)">
-                &gt;
+                ›
             </button>
 
         </div>
