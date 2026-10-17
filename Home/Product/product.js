@@ -264,6 +264,31 @@ function renderVariantSelector() {
   renderVariants();
 }
 
+/* PREMIUM VARIATION IMAGE PREVIEW */
+let variantImageRequest = 0;
+
+function previewVariantImage(imageUrl) {
+  const img = document.getElementById("productImg");
+  if (!img || !imageUrl) return;
+
+  const requestId = ++variantImageRequest;
+
+  if (img.getAttribute("src") === imageUrl) return;
+
+  const preload = new Image();
+
+  preload.onload = () => {
+    if (requestId !== variantImageRequest) return;
+
+    img.src = imageUrl;
+    img.dataset.src = imageUrl;
+    img.classList.add("loaded");
+  };
+
+  // Keep the existing image if the new image fails.
+  preload.src = imageUrl;
+}
+
 function updateVariantUI(variant) {
   const price = safeNumber(variant.price);
   const discount = safeNumber(variant.discountPrice);
@@ -279,7 +304,7 @@ function updateVariantUI(variant) {
     safeNumber(variant.stock) > 0 ? `Stock: ${variant.stock} available` : "Out of stock";
 
   if (variant.image) {
-    document.getElementById("productImg").src = variant.image;
+    previewVariantImage(variant.image);
   }
 
   quantityInput.max = safeNumber(variant.stock);
@@ -685,6 +710,19 @@ function renderProduct() {
   }
 
   renderVariantSelector();
+
+  // Preload first 6 in-stock variation images
+  setTimeout(() => {
+    getVariants(product)
+      .filter(variant => safeNumber(variant.stock) > 0)
+      .slice(0, 6)
+      .forEach(variant => {
+        if (!variant.image) return;
+
+        const preload = new Image();
+        preload.src = variant.image;
+      });
+  }, 0);
 
   document.title =
     `${product.name} | Drin Electronics`;
