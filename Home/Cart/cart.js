@@ -101,13 +101,22 @@ function getProducts() {
   return JSON.parse(localStorage.getItem("drinProducts")) || [];
 }
 
-function getProductStock(productId, cartItem = null) {
-  const products = getProducts();
-  const product = products.find((item) => String(item.id) === String(productId));
+let liveCartStock = new Map();
+let liveCartStockVerified = false;
 
-  if (product) {
-    return safeNumber(product.stock, -1);
+function getProductStock(productId, cartItem = null) {
+  const key = `${String(productId)}__${String(cartItem?.variantLabel || "").trim()}`;
+
+  if (liveCartStockVerified) {
+    return liveCartStock.has(key) ? liveCartStock.get(key) : -1;
   }
+
+  const products = getProducts();
+  const product = products.find(
+    item => String(item.id) === String(productId)
+  );
+
+  if (product) return safeNumber(product.stock, -1);
 
   if (cartItem && cartItem.stock !== undefined) {
     return safeNumber(cartItem.stock, -1);
@@ -116,11 +125,82 @@ function getProductStock(productId, cartItem = null) {
   return -1;
 }
 
+async function refreshLiveCartStock() {
+  if (typeof supabaseClient === "undefined") return false;
+
+  const ids = [...new Set(cart.map(item => String(getItemId(item))).filter(Boolean))];
+
+  if (!ids.length) {
+    liveCartStockVerified = true;
+    return true;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("products")
+      .select("id, stock, variations")
+      .in("id", ids);
+
+    if (error) throw error;
+
+    const productMap = new Map(
+      (data || []).map(product => [String(product.id), product])
+    );
+
+    const updatedStock = new Map();
+
+    for (const item of cart) {
+      const id = String(getItemId(item));
+      const label = String(item.variantLabel || "").trim();
+      const key = `${id}__${label}`;
+      const product = productMap.get(id);
+
+      if (!product) {
+        updatedStock.set(key, -1);
+        continue;
+      }
+
+      const variants = Array.isArray(product.variations)
+        ? product.variations
+        : [];
+
+      if (label && variants.length) {
+        const variant = variants.find(
+          v => String(v.label || "").trim().toLowerCase() === label.toLowerCase()
+        );
+
+        updatedStock.set(
+          key,
+          variant ? Math.max(0, safeNumber(variant.stock)) : -1
+        );
+      } else {
+        const stock = variants.length
+          ? variants.reduce(
+            (total, v) => total + Math.max(0, safeNumber(v.stock)),
+            0
+          )
+          : Math.max(0, safeNumber(product.stock));
+
+        updatedStock.set(key, stock);
+      }
+    }
+
+    liveCartStock = updatedStock;
+    liveCartStockVerified = true;
+    renderCart();
+    return true;
+
+  } catch (error) {
+    console.error("Cart stock verification failed:", error);
+    return false;
+  }
+}
+
 function clampQty(productId, qty, cartItem = null) {
   const stock = getProductStock(productId, cartItem);
 
   if (qty < 0) return 0;
-  if (stock === -1) return qty;
+  if (stock === -1 || stock === 0) return qty;
   if (qty > stock) return stock;
 
   return qty;
@@ -131,8 +211,12 @@ function clampQty(productId, qty, cartItem = null) {
    Purpose: Kunin lang selected items na may quantity
 ================================ */
 function getSelectedCart() {
-  return cart.filter((item) => {
-    return item.selected && Number(item.quantity) > 0;
+  return cart.filter(item => {
+    const stock = getProductStock(getItemId(item), item);
+
+    return item.selected &&
+      Number(item.quantity) > 0 &&
+      stock > 0;
   });
 }
 
@@ -241,7 +325,28 @@ function renderCart() {
       }
         </p>
 
+                ${isOutOfStock ? `
+          <div style="
+            margin:10px 0;
+            padding:10px 12px;
+            background:#fff1f2;
+            border:1px solid #fecdd3;
+            border-radius:8px;
+            color:#be123c;
+            font-size:12px;
+            line-height:1.5;
+          ">
+            <strong>⚠ Out of Stock</strong>
+            <div>
+              This item is currently unavailable and
+              will not be included in checkout.
+              You can keep it in your cart until restocked.
+            </div>
+          </div>
+        ` : ""}
+
         <div class="cart-item-actions">
+
           <div class="qty-box">
             <button
               type="button"
@@ -489,7 +594,23 @@ function undoRemove() {
    CHECKOUT VALIDATION
    Purpose: Limit checkout to max 50 items and max ₱50,000
 ================================ */
-function goToCheckout() {
+let checkoutStockChecking = false;
+
+async function goToCheckout() {
+  if (checkoutStockChecking) return;
+
+  checkoutStockChecking = true;
+  const verified = await refreshLiveCartStock();
+  checkoutStockChecking = false;
+
+  if (!verified) {
+    showCartNotice(
+      "Stock Verification Unavailable",
+      "We could not verify current stock. Please try again before checkout."
+    );
+    return;
+  }
+
   const selectedItems = getSelectedCart();
 
   const MAX_CHECKOUT_ROWS = 50;
@@ -590,6 +711,7 @@ function goToCheckout() {
    Purpose: Initial render when page loads
 ================================ */
 renderCart();
+refreshLiveCartStock();
 
 /* ===============================
    GLOBAL FUNCTIONS

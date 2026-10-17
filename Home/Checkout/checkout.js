@@ -753,7 +753,22 @@ function showOrderModal(title, message, showLoader = false) {
 
   if (okBtn) {
     okBtn.style.display = showLoader ? "none" : "inline-block";
-    okBtn.onclick = closeOrderModal;
+
+    const isStockAlert =
+      title === "Stock Updated — Please Review" ||
+      title === "Stock No Longer Available";
+
+    okBtn.textContent = isStockAlert
+      ? "Review Cart"
+      : "Choose Courier";
+
+    okBtn.onclick = function () {
+      closeOrderModal();
+
+      if (isStockAlert) {
+        window.location.href = "/Home/Cart/";
+      }
+    };
   }
 
   if (closeBtn) {
@@ -1841,6 +1856,79 @@ function getFallbackCourier() {
 
 }
 
+/* CHECK LATEST STOCK BEFORE PLACE ORDER */
+async function verifyCheckoutStock(items) {
+  const ids = [...new Set(
+    items.map(item => String(item.productId || item.id))
+  )];
+
+  if (!ids.length) {
+    throw new Error("No products selected.");
+  }
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id, title, stock, variations")
+    .in("id", ids);
+
+  if (error) throw error;
+
+  const productsById = new Map(
+    (data || []).map(p => [String(p.id), p])
+  );
+
+  const unavailable = [];
+
+  for (const item of items) {
+    const id = String(item.productId || item.id);
+    const product = productsById.get(id);
+
+    const qty = items
+      .filter(otherItem =>
+        String(otherItem.productId || otherItem.id) === id &&
+        String(otherItem.variantLabel || otherItem.variant || "")
+          .trim().toLowerCase() ===
+        String(item.variantLabel || item.variant || "")
+          .trim().toLowerCase()
+      )
+      .reduce((total, otherItem) =>
+        total + Number(otherItem.quantity), 0
+      );
+
+    const label = String(item.variantLabel || item.variant || "").trim();
+
+    let stock = 0;
+
+    if (product) {
+      const variations = Array.isArray(product.variations)
+        ? product.variations
+        : [];
+
+      if (variations.length) {
+        const variant = variations.find(v =>
+          String(v.label || "").trim().toLowerCase() ===
+          (label || "Default").toLowerCase()
+        );
+
+        stock = variant ? Number(variant.stock) || 0 : 0;
+      } else if (!label || label.toLowerCase() === "default") {
+        stock = Number(product.stock) || 0;
+      }
+    }
+
+    if (!Number.isInteger(qty) || qty < 1 || qty > stock) {
+      unavailable.push({
+        name: product?.title || item.name || "Product",
+        variant: label,
+        requested: qty,
+        available: Math.max(0, stock)
+      });
+    }
+  }
+
+  return unavailable;
+}
+
 async function deductOrderStock(order) {
   if (!order?.items?.length) {
     return true;
@@ -2814,6 +2902,66 @@ async function placeOrder() {
     }
   }
 
+  let unavailableItems;
+
+  try {
+    unavailableItems = await verifyCheckoutStock(cartItems);
+  } catch (error) {
+    console.error("STOCK VERIFICATION ERROR:", error);
+
+    showOrderModal(
+      "Stock Check Unavailable",
+      "We could not verify product availability. Please try again."
+    );
+
+    return resetPlaceOrder();
+  }
+
+  if (unavailableItems.length) {
+    const details = unavailableItems.map(item => {
+      const name = String(item.name).replace(/[&<>"']/g, "");
+      const variant = String(item.variant).replace(/[&<>"']/g, "");
+
+      return `<div style="padding:8px 0">
+      <strong>${name}</strong>
+      ${variant ? `<div>Variation: ${variant}</div>` : ""}
+      <div>Requested: ${item.requested} | Available: ${item.available}</div>
+    </div>`;
+    }).join("");
+
+    showOrderModal(
+      "Stock Updated — Please Review",
+      `<div style="line-height:1.7; text-align:left;">
+    <p style="color:#dc2626; font-weight:700;">
+      ⚠ Some items are sold out or have insufficient stock.
+      </p>
+
+      <p>
+        Another customer may have purchased the remaining
+        stock while you were checking out.
+        </p>
+
+        <div style="
+          padding:12px;
+          background:#fff7ed;
+          border:1px solid #fed7aa;
+          border-radius:10px;
+          margin:12px 0;
+        ">
+          ${details}
+        </div>
+
+        <p style="font-weight:600;">
+        Your order has not been placed.
+        Please return to your cart and adjust your quantity
+        or choose another variation.
+    </p>
+  </div>`
+    );
+
+    return resetPlaceOrder();
+  }
+
   const normalizedItems = normalizeOrderItems(cartItems);
   const address = getSelectedAddress();
   currentParcelInfo = calculateParcelInfo();
@@ -2964,9 +3112,18 @@ async function placeOrder() {
       }
     }
 
+    const isStockError =
+      /insufficient stock|variant out of stock|product out of stock/i
+        .test(String(error?.message || ""));
+
     showOrderModal(
-      "Order Failed",
-      "The order was not completed. Reserved stock has been returned. Please try again."
+      isStockError
+        ? "Stock No Longer Available"
+        : "Order Failed",
+
+      isStockError
+        ? "⚠ Sorry! Another customer may have purchased the remaining stock. Your order was not placed. Please return to your cart and review the available quantity."
+        : "We could not complete your order. Please try again or contact support if the problem continues."
     );
 
     return resetPlaceOrder();
