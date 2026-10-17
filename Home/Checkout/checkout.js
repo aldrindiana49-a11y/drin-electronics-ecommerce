@@ -951,12 +951,12 @@ function togglePayment(enabled = false) {
       enabled ? "none" : "block";
   }
 
+  // Keep Place Order clickable so validation
+  // works even on the very first click.
   if (checkoutBtn) {
-    checkoutBtn.disabled = !enabled;
-    checkoutBtn.style.pointerEvents =
-      enabled ? "auto" : "none";
-    checkoutBtn.style.opacity =
-      enabled ? "1" : "0.6";
+    checkoutBtn.disabled = false;
+    checkoutBtn.style.pointerEvents = "auto";
+    checkoutBtn.style.opacity = "1";
   }
 }
 
