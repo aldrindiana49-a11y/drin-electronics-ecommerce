@@ -2161,7 +2161,8 @@ body {
     font-size: 12px !important;
     font-weight: 700 !important;
 
-    white-space: nowrap !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
 
     z-index: 999999 !important;
   }
@@ -5189,3 +5190,17 @@ body {
   }
 }
 
+/* FINAL FIX - RED STOCK ALERT TEXT */
+#cartToast,
+.cart-toast {
+  box-sizing: border-box !important;
+  width: max-content !important;
+  max-width: min(360px, calc(100vw - 32px)) !important;
+  min-width: 0 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 1.5 !important;
+  padding: 12px 16px !important;
+  text-align: center !important;
+}

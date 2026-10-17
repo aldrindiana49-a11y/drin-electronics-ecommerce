@@ -978,28 +978,44 @@ function updateCartCount() {
 const MAX_CART_QTY = 50;
 
 function validateQuantity() {
-  const stock = getProductStock(product);
-  let qty = parseInt(quantityInput.value);
+  const stock = selectedVariant
+    ? safeNumber(selectedVariant.stock)
+    : getProductStock(product);
+
+  const maxQty = Math.min(stock, MAX_CART_QTY);
+
+  let qty = parseInt(quantityInput.value, 10);
 
   if (isNaN(qty) || qty < 1) qty = 1;
-  const maxQty =
-    Math.min(stock, MAX_CART_QTY);
 
-  if (qty > maxQty)
+  if (qty > maxQty) {
     qty = maxQty;
+
+    showMessage(
+      `Only ${maxQty} pcs available${selectedVariant ? ` for ${selectedVariant.label}` : ""}.`,
+      "error"
+    );
+  }
 
   quantityInput.value = qty;
   return qty;
 }
 
 plusBtn.addEventListener("click", () => {
-  const stock = getProductStock(product);
-  let qty = validateQuantity();
+  const stock = selectedVariant
+    ? safeNumber(selectedVariant.stock)
+    : getProductStock(product);
 
-  if (qty < stock) {
+  const maxQty = Math.min(stock, MAX_CART_QTY);
+  const qty = validateQuantity();
+
+  if (qty < maxQty) {
     quantityInput.value = qty + 1;
   } else {
-    showMessage("Maximum stock reached.", "error");
+    showMessage(
+      `Only ${maxQty} pcs available${selectedVariant ? ` for ${selectedVariant.label}` : ""}.`,
+      "error"
+    );
   }
 });
 
@@ -1016,7 +1032,9 @@ quantityInput.addEventListener("input", validateQuantity);
 addToCartBtn.addEventListener("click", () => {
   if (productsLoading) return;
 
-  const stock = getProductStock(product);
+  const stock = selectedVariant
+    ? safeNumber(selectedVariant.stock)
+    : getProductStock(product);
 
   if (stock <= 0) {
     showOutOfStockAlert();
@@ -1100,8 +1118,17 @@ addToCartBtn.addEventListener("click", () => {
     existingItem.selected = true;
 
     if (newQty > selectedStock) {
-      existingItem.quantity = selectedStock;
-      showMessage("Cart updated to maximum available stock.", "error");
+      const remaining = Math.max(
+        0,
+        selectedStock - safeNumber(existingItem.quantity)
+      );
+
+      showMessage(
+        `Maximum stock reached! Only ${selectedStock} pcs available for ${selectedVariantLabel || "this product"}.`,
+        "error"
+      );
+
+      return;
     } else {
       existingItem.quantity = newQty;
       showMessage("Quantity added to cart!", "success");
@@ -1233,8 +1260,27 @@ buyNowBtn?.addEventListener("click", () => {
 
   if (existingItem) {
 
-    existingItem.quantity =
-      safeNumber(existingItem.quantity) + qty;
+    const availableStock = selectedVariant
+      ? safeNumber(selectedVariant.stock)
+      : getProductStock(product);
+
+    const newQty = safeNumber(existingItem.quantity) + qty;
+
+    if (newQty > availableStock) {
+      const remaining = Math.max(
+        0,
+        availableStock - safeNumber(existingItem.quantity)
+      );
+
+      showMessage(
+        `Only ${remaining} more pcs available for ${selectedVariant?.label || "this product"}. Maximum stock: ${availableStock} pcs.`,
+        "error"
+      );
+
+      return;
+    }
+
+    existingItem.quantity = newQty;
 
     existingItem.selected = true;
 
@@ -1948,6 +1994,15 @@ function openVariantPopup() {
 
           selectedVariant = variant;
 
+          // Reset quantity when changing variations
+          if (popupQtyInput) {
+            popupQtyInput.value = 1;
+            popupQtyInput.max = Math.min(
+              safeNumber(variant.stock),
+              MAX_CART_QTY
+            );
+          }
+
           document.getElementById("variantPopupImage").src =
             variant.image || getProductImage(product);
 
@@ -2028,7 +2083,10 @@ document
 
     } else {
 
-      showMessage("Quantity limit reached.", "error");
+      showMessage(
+        `Maximum stock reached! Only ${stock} pcs available for ${selectedVariant.label}.`,
+        "error"
+      );
 
     }
 
@@ -2062,8 +2120,11 @@ document.addEventListener("click", (e) => {
   const qty = Number(popupQtyInput.value) || 1;
   const stock = safeNumber(selectedVariant.stock);
 
-  if (qty > stock) {
-    showMessage("Quantity limit reached.", "error");
+  if (!Number.isInteger(qty) || qty < 1 || qty > Math.min(stock, MAX_CART_QTY)) {
+    showMessage(
+      `Only ${Math.min(stock, MAX_CART_QTY)} pcs available for ${selectedVariant.label}.`,
+      "error"
+    );
     return;
   }
 
@@ -2083,8 +2144,17 @@ document.addEventListener("click", (e) => {
     existingItem.height = Number(selectedVariant?.height ?? product.height ?? 1);
 
     if (newQty > stock) {
-      existingItem.quantity = stock;
-      showMessage("Cart updated to maximum available stock.", "error");
+      const remaining = Math.max(
+        0,
+        stock - safeNumber(existingItem.quantity)
+      );
+
+      showMessage(
+        `Maximum stock reached! Only ${stock} pcs available for ${selectedVariant.label}.`,
+        "error"
+      );
+
+      return;
     } else {
       existingItem.quantity = newQty;
       showMessage("Quantity added to cart!", "success");
