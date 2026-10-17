@@ -766,7 +766,7 @@ function showOrderModal(title, message, showLoader = false) {
       closeOrderModal();
 
       if (isStockAlert) {
-        window.location.href = "/Home/Cart/";
+        window.location.href = "https://www.drinelectronicsph.com/cart/";
       }
     };
   }
