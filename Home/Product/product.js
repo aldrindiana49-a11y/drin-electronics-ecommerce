@@ -982,17 +982,39 @@ function validateQuantity() {
     ? safeNumber(selectedVariant.stock)
     : getProductStock(product);
 
-  const maxQty = Math.min(stock, MAX_CART_QTY);
+  const existingItem = getCart().find(item =>
+    String(item.id) === String(product.id) &&
+    String(item.variantLabel || "") ===
+    String(selectedVariant?.label || "")
+  );
+
+  const cartQty = existingItem
+    ? safeNumber(existingItem.quantity)
+    : 0;
+
+  const remaining = Math.max(0, stock - cartQty);
+
+  const maxQty = Math.max(
+    0,
+    Math.min(remaining, MAX_CART_QTY - cartQty)
+  );
 
   let qty = parseInt(quantityInput.value, 10);
 
-  if (isNaN(qty) || qty < 1) qty = 1;
+  if (!Number.isInteger(qty) || qty < 1) {
+    qty = 1;
+  }
+
+  if (maxQty === 0) {
+    quantityInput.value = 1;
+    return 1;
+  }
 
   if (qty > maxQty) {
     qty = maxQty;
 
     showMessage(
-      `Only ${maxQty} pcs available${selectedVariant ? ` for ${selectedVariant.label}` : ""}.`,
+      `You can add only ${maxQty} more pc${maxQty === 1 ? "" : "s"} to your cart.`,
       "error"
     );
   }
@@ -1002,18 +1024,35 @@ function validateQuantity() {
 }
 
 plusBtn.addEventListener("click", () => {
+  if (productsLoading || !product) return;
+
   const stock = selectedVariant
     ? safeNumber(selectedVariant.stock)
     : getProductStock(product);
 
-  const maxQty = Math.min(stock, MAX_CART_QTY);
-  const qty = validateQuantity();
+  const existingItem = getCart().find(item =>
+    String(item.id) === String(product.id) &&
+    String(item.variantLabel || "") === String(selectedVariant?.label || "")
+  );
+
+  const cartQty = existingItem
+    ? safeNumber(existingItem.quantity)
+    : 0;
+
+  const remaining = Math.max(0, stock - cartQty);
+  const maxQty = Math.max(0, Math.min(remaining, MAX_CART_QTY - cartQty));
+  const qty = Number(quantityInput.value) || 1;
+
+  if (remaining === 0) {
+    showAlreadyInCartPopup();
+    return;
+  }
 
   if (qty < maxQty) {
     quantityInput.value = qty + 1;
   } else {
     showMessage(
-      `Only ${maxQty} pcs available${selectedVariant ? ` for ${selectedVariant.label}` : ""}.`,
+      `You can add only ${maxQty} more pc${maxQty === 1 ? "" : "s"} to your cart.`,
       "error"
     );
   }
@@ -1123,10 +1162,14 @@ addToCartBtn.addEventListener("click", () => {
         selectedStock - safeNumber(existingItem.quantity)
       );
 
-      showMessage(
-        `Maximum stock reached! Only ${selectedStock} pcs available for ${selectedVariantLabel || "this product"}.`,
-        "error"
-      );
+      if (remaining === 0) {
+        showAlreadyInCartPopup();
+      } else {
+        showMessage(
+          `You can add only ${remaining} more pc${remaining === 1 ? "" : "s"} to your cart.`,
+          "error"
+        );
+      }
 
       return;
     } else {
@@ -1272,10 +1315,14 @@ buyNowBtn?.addEventListener("click", () => {
         availableStock - safeNumber(existingItem.quantity)
       );
 
-      showMessage(
-        `Only ${remaining} more pcs available for ${selectedVariant?.label || "this product"}. Maximum stock: ${availableStock} pcs.`,
-        "error"
-      );
+      if (remaining === 0) {
+        showAlreadyInCartPopup();
+      } else {
+        showMessage(
+          `You can add only ${remaining} more pc${remaining === 1 ? "" : "s"} to your cart.`,
+          "error"
+        );
+      }
 
       return;
     }
@@ -1313,6 +1360,87 @@ buyNowBtn?.addEventListener("click", () => {
     "../Cart/index.html";
 
 });
+
+function showAlreadyInCartPopup() {
+  const existing = document.getElementById("alreadyInCartPopup");
+
+  if (existing) existing.remove();
+
+  const popup = document.createElement("div");
+  popup.id = "alreadyInCartPopup";
+
+  popup.style.cssText = `
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(15, 23, 42, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    `;
+
+  popup.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 20px;
+            padding: 30px 24px;
+            width: 100%;
+            max-width: 390px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        ">
+            <div style="font-size: 44px; margin-bottom: 12px;">🛒</div>
+
+            <h3 style="margin-bottom: 12px; color: #111827;">
+                Item Already in Your Cart!
+            </h3>
+
+            <p style="color: #64748b; line-height: 1.6;">
+                You've already added all available quantities
+                of this item to your cart.
+            </p>
+
+            <button id="alreadyCartView" style="
+                width: 100%;
+                padding: 14px;
+                margin-top: 20px;
+                background: #2563eb;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-weight: 700;
+                cursor: pointer;
+            ">View Cart</button>
+
+            <button id="alreadyCartClose" style="
+                width: 100%;
+                padding: 12px;
+                margin-top: 10px;
+                background: #f1f5f9;
+                color: #334155;
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                cursor: pointer;
+            ">Continue Shopping</button>
+        </div>
+    `;
+
+  document.body.appendChild(popup);
+
+  popup.querySelector("#alreadyCartView").onclick = () => {
+    window.location.href =
+      window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+        ? "../Cart/index.html"
+        : "/cart/";
+  };
+
+  popup.querySelector("#alreadyCartClose").onclick = () => {
+    popup.remove();
+  };
+}
 
 function showMessage(text, type) {
   const toast = document.getElementById("cartToast");
@@ -2062,32 +2190,89 @@ document
 const popupQtyInput =
   document.getElementById("popupQtyInput");
 
+popupQtyInput?.addEventListener("change", () => {
+  if (!selectedVariant || !product) return;
+
+  const stock = safeNumber(selectedVariant.stock);
+
+  const existingItem = getCart().find(item =>
+    String(item.id) === String(product.id) &&
+    String(item.variantLabel || "") === String(selectedVariant.label)
+  );
+
+  const cartQty = existingItem
+    ? safeNumber(existingItem.quantity)
+    : 0;
+
+  const remaining = Math.max(0, stock - cartQty);
+  const maxQty = Math.max(
+    0,
+    Math.min(remaining, MAX_CART_QTY - cartQty)
+  );
+
+  let qty = Number(popupQtyInput.value);
+
+  if (remaining === 0) {
+    popupQtyInput.value = 1;
+    closeVariantPopup();
+    showAlreadyInCartPopup();
+    return;
+  }
+
+  if (!Number.isInteger(qty) || qty < 1) {
+    qty = 1;
+  }
+
+  if (qty > maxQty) {
+    qty = maxQty;
+
+    showMessage(
+      `You can add only ${maxQty} more pc${maxQty === 1 ? "" : "s"} to your cart.`,
+      "error"
+    );
+  }
+
+  popupQtyInput.value = qty;
+});
+
 document
   .getElementById("popupQtyPlus")
   ?.addEventListener("click", () => {
 
-    let qty =
-      Number(popupQtyInput.value) || 1;
+    if (!selectedVariant) {
+      showMessage("Please select a variation.", "error");
+      return;
+    }
 
-    const maxStock =
-      Math.min(
-        selectedVariant
-          ? safeNumber(selectedVariant.stock)
-          : getProductStock(product),
-        MAX_CART_QTY
-      );
+    const stock = safeNumber(selectedVariant.stock);
 
-    if (qty < maxStock) {
+    const existingItem = getCart().find(item =>
+      String(item.id) === String(product.id) &&
+      String(item.variantLabel || "") === String(selectedVariant.label)
+    );
 
+    const cartQty = existingItem
+      ? safeNumber(existingItem.quantity)
+      : 0;
+
+    const remaining = Math.max(0, stock - cartQty);
+    const maxQty = Math.max(0, Math.min(remaining, MAX_CART_QTY - cartQty));
+
+    const qty = Number(popupQtyInput.value) || 1;
+
+    if (maxQty === 0 && remaining === 0) {
+      closeVariantPopup();
+      showAlreadyInCartPopup();
+      return;
+    }
+
+    if (qty < maxQty) {
       popupQtyInput.value = qty + 1;
-
     } else {
-
       showMessage(
-        `Maximum stock reached! Only ${stock} pcs available for ${selectedVariant.label}.`,
+        `You can add only ${maxQty} more pc${maxQty === 1 ? "" : "s"} to your cart.`,
         "error"
       );
-
     }
 
   });
@@ -2135,6 +2320,31 @@ document.addEventListener("click", (e) => {
     item.variantLabel === selectedVariant.label
   );
 
+  const cartQty = existingItem
+    ? safeNumber(existingItem.quantity)
+    : 0;
+
+  const remaining = Math.max(0, stock - cartQty);
+
+  const maxQty = Math.max(
+    0,
+    Math.min(remaining, MAX_CART_QTY - cartQty)
+  );
+
+  if (remaining === 0) {
+    closeVariantPopup();
+    showAlreadyInCartPopup();
+    return;
+  }
+
+  if (qty > maxQty) {
+    showMessage(
+      `You can add only ${maxQty} more pc${maxQty === 1 ? "" : "s"} to your cart.`,
+      "error"
+    );
+    return;
+  }
+
   if (existingItem) {
     const newQty = safeNumber(existingItem.quantity) + qty;
 
@@ -2149,10 +2359,15 @@ document.addEventListener("click", (e) => {
         stock - safeNumber(existingItem.quantity)
       );
 
-      showMessage(
-        `Maximum stock reached! Only ${stock} pcs available for ${selectedVariant.label}.`,
-        "error"
-      );
+      if (remaining === 0) {
+        closeVariantPopup();
+        showAlreadyInCartPopup();
+      } else {
+        showMessage(
+          `You can add only ${remaining} more pc${remaining === 1 ? "" : "s"} to your cart.`,
+          "error"
+        );
+      }
 
       return;
     } else {
@@ -2219,7 +2434,7 @@ document.getElementById("mobileCartBtn")
     e.preventDefault();
     e.stopPropagation();
 
-    window.location.href = "../cart/cart.html";
+    window.location.href = "../Cart/index.html";
   });
 
 async function renderStoreBranding() {
