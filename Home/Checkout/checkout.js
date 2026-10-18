@@ -760,7 +760,13 @@ function showOrderModal(title, message, showLoader = false) {
 
     okBtn.textContent = isStockAlert
       ? "Review Cart"
-      : "Choose Courier";
+      : title === "Courier Required" ||
+        title === "Select Your Courier First"
+        ? "Choose Courier"
+        : title === "Incomplete Details" ||
+          title === "Incomplete Customer Details"
+          ? "Complete Details"
+          : "OK";
 
     okBtn.onclick = function () {
       closeOrderModal();
