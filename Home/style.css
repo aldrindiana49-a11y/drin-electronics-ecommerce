@@ -2934,3 +2934,36 @@ body {
     font-size: 12px;
   }
 }
+
+
+/* BIR SEAL BADGE - FOOTER */
+.footer-bir-seal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  margin: 20px auto 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer-bir-seal img {
+  display: block;
+  width: 170px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 600px) {
+  .footer-bir-seal {
+    padding: 18px 12px;
+  }
+
+  .footer-bir-seal img {
+    width: 140px;
+  }
+}
