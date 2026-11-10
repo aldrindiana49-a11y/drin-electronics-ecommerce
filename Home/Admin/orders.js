@@ -199,11 +199,23 @@ function printOrderInvoice(orderId) {
     0
   );
 
-  const total =
+  // Use original checkout total saved in database
+  const calculatedTotal =
     subtotal -
     voucher +
     shipping +
     serviceFee;
+
+  const savedAmount = Number(order.amount);
+
+  const total =
+    order.amount !== null &&
+      order.amount !== undefined &&
+      order.amount !== "" &&
+      Number.isFinite(savedAmount) &&
+      savedAmount >= 0
+      ? savedAmount
+      : calculatedTotal;
 
   const paymentStatus =
     order.payment_status ||
@@ -1423,11 +1435,24 @@ function renderAdminOrders() {
         0
       );
 
-    const total =
+    // Use the original checkout amount saved in the database.
+    // Recalculate only when no valid saved amount exists.
+    const calculatedTotal =
       subtotal -
       voucher +
       shipping +
       serviceFee;
+
+    const savedAmount = Number(order.amount);
+
+    const total =
+      order.amount !== null &&
+        order.amount !== undefined &&
+        order.amount !== "" &&
+        Number.isFinite(savedAmount) &&
+        savedAmount >= 0
+        ? savedAmount
+        : calculatedTotal;
 
     return `
       <div class="warehouse-order-card">
