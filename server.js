@@ -600,12 +600,17 @@ async function processSpxTrackingWebhook(data) {
         mapped.order_status;
     }
 
+    // Keep original customer shipping fee unchanged.
+    // SPX actual shipping fee is for courier accounting only.
     if (
       data.actual_shipping_fee !== undefined &&
       data.actual_shipping_fee !== null
     ) {
-      orders[index].shipping_fee =
-        Number(data.actual_shipping_fee);
+      console.log("SPX ACTUAL SHIPPING FEE:", {
+        orderId: orders[index].external_id,
+        actualShippingFee: Number(data.actual_shipping_fee),
+        customerShippingFee: Number(orders[index].shipping_fee ?? 0)
+      });
     }
 
     if (
@@ -1274,7 +1279,16 @@ app.post("/api/orders/:orderId/spx-create", async (req, res) => {
     orders[index].tracking_number = spxOrder.tracking_no;
     orders[index].tracking_link = spxOrder.tracking_link || spxOrder.tracking_no_link;
     orders[index].awb_link = awb.data?.awb_link || "";
-    orders[index].shipping_fee = spxOrder.estimated_shipping_fee || 0;
+
+    // Preserve original customer shipping fee
+    console.log("SPX ESTIMATED SHIPPING FEE:", {
+      orderId,
+      estimatedShippingFee:
+        Number(spxOrder.estimated_shipping_fee ?? 0),
+      originalCustomerShippingFee:
+        Number(order.shipping_fee ?? 0)
+    });
+
     orders[index].shipping_status = "PENDING_PICKUP";
     orders[index].order_status = "Processing";
     orders[index].updated_at = new Date().toISOString();
