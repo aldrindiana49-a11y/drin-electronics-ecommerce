@@ -2967,3 +2967,77 @@ body {
     width: 140px;
   }
 }
+
+
+/* =========================================
+   SHOP BY CATEGORY - IMAGE CARDS
+   ========================================= */
+
+.shortcut-item.category-image-card {
+  flex: 0 0 130px;
+  min-width: 130px;
+  max-width: 130px;
+  height: auto;
+  padding: 8px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: 0.2s ease;
+}
+
+.category-image-card .category-image-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f9fafb !important;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-image-card .category-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.category-image-card .shortcut-label {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.category-image-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .shortcut-item.category-image-card {
+    flex: 0 0 105px;
+    min-width: 105px;
+    max-width: 105px;
+    padding: 6px;
+  }
+
+  .category-image-card .shortcut-label {
+    font-size: 11px;
+  }
+}
