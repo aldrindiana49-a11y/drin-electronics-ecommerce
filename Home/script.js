@@ -1995,34 +1995,81 @@ document.addEventListener(
   }
 );
 
+
 function renderCategoryShortcuts() {
   const shortcutGrid = document.getElementById("shortcutGrid");
   if (!shortcutGrid) return;
 
-  // products na may stock lang
+  // Only products with available stock
   const availableProducts = products.filter(product =>
     Number(product.stock || 0) > 0
   );
 
-  // unique categories only
-  const categories = [...new Set(
-    availableProducts
-      .map(product => safeText(product.category))
-      .filter(Boolean)
-  )];
+  // One representative product per category
+  const categoryMap = new Map();
 
-  shortcutGrid.innerHTML = categories.map(category => `
-    <a href="#"
-       class="shortcut-item"
-       onclick="filterByCategory('${category.replaceAll("'", "\\'")}'); return false;">
+  availableProducts.forEach(product => {
+    const category = safeText(product.category);
 
-      <div class="shortcut-icon">📦</div>
+    if (!category) return;
 
-      <span class="shortcut-label">${escapeHtml(category)}</span>
+    const image = safeText(
+      product.image || product.images?.[0]
+    );
 
-    </a>
-  `).join("");
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, image);
+    } else if (!categoryMap.get(category) && image) {
+      categoryMap.set(category, image);
+    }
+  });
+
+  shortcutGrid.innerHTML = "";
+
+
+  const shuffledCategories = [...categoryMap.entries()];
+
+  // Fisher-Yates shuffle
+  for (let i = shuffledCategories.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [shuffledCategories[i], shuffledCategories[j]] =
+      [shuffledCategories[j], shuffledCategories[i]];
+  }
+
+  shuffledCategories.forEach(([category, image]) => {
+
+
+    const card = document.createElement("a");
+
+    card.href = "#";
+    card.className = "shortcut-item category-image-card";
+
+    card.innerHTML = `
+      <div class="category-image-box">
+        ${image ? `
+          <img
+            src="${escapeHtml(image)}"
+            alt="${escapeHtml(category)}"
+            loading="lazy"
+          >
+        ` : ""}
+      </div>
+
+      <span class="shortcut-label">
+        ${escapeHtml(category)}
+      </span>
+    `;
+
+    card.addEventListener("click", event => {
+      event.preventDefault();
+      filterByCategory(category);
+    });
+
+    shortcutGrid.appendChild(card);
+  });
 }
+
 
 function scrollShortcutLeft() {
   document.getElementById("shortcutGrid")?.scrollBy({
