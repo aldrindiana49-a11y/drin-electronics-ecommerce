@@ -3041,3 +3041,52 @@ body {
     font-size: 11px;
   }
 }
+
+
+/* =====================================
+   CATEGORY CARDS - FIXED ALIGNMENT
+   ===================================== */
+
+.shortcut-item.category-image-card {
+  justify-content: flex-start !important;
+  align-items: center;
+  height: 165px !important;
+  gap: 8px;
+}
+
+.category-image-card .category-image-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.category-image-card .shortcut-label {
+  width: 100%;
+  min-height: 32px;
+  max-height: 32px;
+  line-height: 16px;
+  font-size: 12px;
+  text-align: center;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .shortcut-item.category-image-card {
+    height: 145px !important;
+  }
+
+  .category-image-card .shortcut-label {
+    font-size: 11px;
+    line-height: 14px;
+    min-height: 28px;
+    max-height: 28px;
+  }
+}
