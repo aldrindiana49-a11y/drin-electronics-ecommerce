@@ -1996,7 +1996,8 @@ document.addEventListener(
 );
 
 
-function renderCategoryShortcuts() {
+
+async function renderCategoryShortcuts() {
   const shortcutGrid = document.getElementById("shortcutGrid");
   if (!shortcutGrid) return;
 
@@ -2010,7 +2011,6 @@ function renderCategoryShortcuts() {
 
   availableProducts.forEach(product => {
     const category = safeText(product.category);
-
     if (!category) return;
 
     const image = safeText(
@@ -2024,8 +2024,32 @@ function renderCategoryShortcuts() {
     }
   });
 
-  shortcutGrid.innerHTML = "";
+  // Read custom category images from Supabase
+  const customImages = new Map();
 
+  try {
+    const { data, error } = await supabaseClient
+      .from("category_card_images")
+      .select("category_name,image_path");
+
+    if (error) throw error;
+
+    (data || []).forEach(item => {
+      if (!item.category_name || !item.image_path) return;
+
+      const { data: urlData } = supabaseClient.storage
+        .from("category-card-images")
+        .getPublicUrl(item.image_path);
+
+      if (urlData?.publicUrl) {
+        customImages.set(item.category_name, urlData.publicUrl);
+      }
+    });
+  } catch (error) {
+    console.warn("Category custom images unavailable:", error);
+  }
+
+  shortcutGrid.innerHTML = "";
 
   const shuffledCategories = [...categoryMap.entries()];
 
@@ -2037,11 +2061,10 @@ function renderCategoryShortcuts() {
       [shuffledCategories[j], shuffledCategories[i]];
   }
 
-  shuffledCategories.forEach(([category, image]) => {
-
+  shuffledCategories.forEach(([category, productImage]) => {
+    const image = customImages.get(category) || productImage;
 
     const card = document.createElement("a");
-
     card.href = "#";
     card.className = "shortcut-item category-image-card";
 
@@ -2052,6 +2075,8 @@ function renderCategoryShortcuts() {
             src="${escapeHtml(image)}"
             alt="${escapeHtml(category)}"
             loading="lazy"
+            decoding="async"
+            onerror="this.onerror=null;this.src='${escapeHtml(productImage)}';"
           >
         ` : ""}
       </div>
@@ -2069,6 +2094,7 @@ function renderCategoryShortcuts() {
     shortcutGrid.appendChild(card);
   });
 }
+
 
 
 function scrollShortcutLeft() {
