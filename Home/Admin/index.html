@@ -1208,6 +1208,74 @@
             </div>
           </div>
         </div>
+
+
+        <!-- CATEGORY CARD MANAGER START -->
+        <div class="panel-card" id="categoryCardManager">
+
+          <h3>Shop by Category - Card Images</h3>
+
+          <p class="helper-text">
+            Customize category images for the homepage.
+            Categories without custom images will
+            automatically use existing product images.
+          </p>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label for="categoryCardSelect">
+                Select Category
+              </label>
+
+              <select id="categoryCardSelect">
+                <option value="">Select category</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="categoryCardImageUpload">
+                Upload Custom Image
+              </label>
+
+              <input type="file" id="categoryCardImageUpload" accept="image/png,image/jpeg,image/webp" />
+
+              <small class="helper-text">
+                Recommended: Square image (1:1).
+              </small>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Category Image Preview</label>
+
+              <div class="image-preview-box">
+                <img id="categoryCardImagePreview" alt="Category image preview"
+                  style="width:130px;height:130px;object-fit:contain;display:none;" />
+
+                <div id="categoryCardImagePlaceholder">
+                  No image selected
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions full-width">
+
+              <button type="button" class="primary-btn" id="saveCategoryCardImageBtn">
+                Save Image
+              </button>
+
+              <button type="button" class="secondary-btn" id="removeCategoryCardImageBtn">
+                Use Automatic Image
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+        <!-- CATEGORY CARD MANAGER END -->
+
+
       </section>
 
       </main>
@@ -1366,6 +1434,7 @@
   <script src="./categories.js?v=10010"></script>
   <script src="./orders.js?v=10031"></script>
   <script src="./employee.js?v=10010"></script>
+  <script src="./category-card-manager.js?v=10004"></script>
 
 </body>
 
