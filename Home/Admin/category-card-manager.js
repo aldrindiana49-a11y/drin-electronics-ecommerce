@@ -124,6 +124,19 @@
 
         const names = new Set();
 
+
+        // Include categories used by actual products
+        if (typeof products !== "undefined" && Array.isArray(products)) {
+            products.forEach(product => {
+                const name = String(product.category || "").trim();
+
+                if (name) {
+                    names.add(name);
+                }
+            });
+        }
+
+
         // Get categories from existing Inventory dropdown
         const inventoryDropdown =
             document.getElementById("category");
