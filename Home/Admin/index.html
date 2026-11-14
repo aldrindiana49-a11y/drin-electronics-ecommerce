@@ -1173,6 +1173,86 @@
         </div>
 
       </section>
+
+
+      <!-- USERS / MODERATORS MANAGEMENT -->
+      <section class="content-section" id="usersSection">
+
+        <div class="section-header">
+          <h2>Users / Moderators</h2>
+          <p>Manage staff accounts, roles, and access permissions.</p>
+        </div>
+
+        <div class="panel-card">
+          <h3>Add New User</h3>
+
+          <form id="addUserForm" class="form-grid">
+
+            <div class="form-group">
+              <label for="newUserName">Full Name</label>
+              <input type="text" id="newUserName" placeholder="Enter full name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="newUserEmail">Email Address</label>
+              <input type="email" id="newUserEmail" placeholder="Enter email address" required />
+            </div>
+
+            <div class="form-group">
+              <label for="newUserRole">User Role</label>
+              <select id="newUserRole" required>
+                <option value="">Select role</option>
+                <option value="moderator">Moderator</option>
+                <option value="staff">Staff</option>
+              </select>
+            </div>
+
+            <div class="form-actions full-width">
+              <button type="submit" class="primary-btn" id="createUserBtn">
+                + Create User
+              </button>
+            </div>
+
+          </form>
+
+          <p class="helper-text">
+            New users will receive an invitation to set up their account.
+            Account creation will be enabled after secure backend integration.
+          </p>
+        </div>
+
+        <div class="panel-card">
+          <h3>Registered Users</h3>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="usersTableBody">
+                <tr>
+                  <td colspan="5">
+                    <div class="empty-box">
+                      User management is not connected yet.
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+      <!-- END USERS / MODERATORS MANAGEMENT -->
+
+
       <section class="content-section" id="settingsSection">
         <div class="section-header">
           <h2>Settings</h2>
@@ -1435,6 +1515,7 @@
   <script src="./orders.js?v=10031"></script>
   <script src="./employee.js?v=10010"></script>
   <script src="./category-card-manager.js?v=10004"></script>
+  <script src="./user-management.js?v=10001"></script>
 
 </body>
 
