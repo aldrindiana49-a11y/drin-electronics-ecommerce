@@ -18,32 +18,50 @@ async function adminFetchWithFallback(path, options = {}) {
     method === "HEAD" ||
     method === "OPTIONS";
 
-  const servers = isSafeRequest
-    ? [
-      PRIMARY_API_URL,
-      BACKUP_API_URL
-    ]
-    : [
-      PRIMARY_API_URL
-    ];
+
+  const isStaff = ["staff", "moderator"].includes(
+    document.body.dataset.role
+  );
+
+  const servers = isStaff
+    ? [PRIMARY_API_URL]
+    : isSafeRequest
+      ? [PRIMARY_API_URL, BACKUP_API_URL]
+      : [PRIMARY_API_URL];
 
   let lastError = null;
 
   for (const baseUrl of servers) {
     const controller = new AbortController();
 
+
     const timeoutId = setTimeout(() => {
       controller.abort();
-    }, 8000);
+    }, 20000);
+
 
     try {
+
+      const {
+        data: { session }
+      } = await supabaseClient.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error("Admin login required.");
+      }
+
       const response = await fetch(
         `${baseUrl}${path}`,
         {
           ...options,
+          headers: {
+            ...(options.headers || {}),
+            Authorization: `Bearer ${session.access_token}`
+          },
           signal: controller.signal
         }
       );
+
 
       clearTimeout(timeoutId);
 
@@ -1386,6 +1404,22 @@ function renderAdminOrders() {
       "Pending";
 
     const items = getOrderItems(order);
+
+
+    const totalProducts = items.length;
+
+    const totalQty = items.reduce((sum, item) => {
+      const qty = Number(
+        item.quantity ??
+        item.qty ??
+        item.quantityOrdered ??
+        1
+      );
+
+      return sum + (Number.isFinite(qty) ? qty : 0);
+    }, 0);
+
+
     const isExpanded = expandedOrderItems[orderId];
     const visibleItems =
       isExpanded
@@ -1535,18 +1569,30 @@ ${hasOrderRequest ? `
         : `<div class="empty-box">No item details found.</div>`
       }
 
-            ${items.length > 2
+            
+          <div class="order-products-footer">
+
+            <div class="order-products-total">
+              <strong>Total: ${totalProducts} Products</strong>
+              <span>Total Qty: ${totalQty} pcs</span>
+            </div>
+
+              ${items.length > 2
         ? `
                   <button
                     class="show-more-items-btn"
                     type="button"
                     onclick="toggleShowAllOrderItems('${escapeAttribute(orderId)}')"
                   >
-                    ${isExpanded ? "Show Less" : "Show All Orders"}
+                    ${isExpanded ? "Show Less" : "Show All Products"}
                   </button>
                 `
         : ""
       }
+
+          </div>
+
+
           </div>
 
 
@@ -1651,15 +1697,19 @@ ${hasOrderRequest ? `
       Customer Request
     </div>
 
-    <button
-      class="mini-manage-btn"
-      type="button"
-      onclick="openOrderModal('${escapeAttribute(orderId)}')"
-    >
-      Manage Order
-    </button>
+    
+      ${document.body.dataset.role === "admin" ? `
+      <button
+        class="mini-manage-btn"
+        type="button"
+        onclick="openOrderModal('${escapeAttribute(orderId)}')"
+      >
+        Manage Order
+      </button>
+    ` : ""}
 
-  </div>
+    </div>
+
 
   <div class="order-request-reason">
     ${escapeHtml(order.order_request_reason || "-")}
@@ -1678,13 +1728,61 @@ ${hasOrderRequest ? `
   "
 >
 
-  <button
-    class="mini-manage-btn"
-    type="button"
-    onclick="openOrderModal('${escapeAttribute(orderId)}')"
-  >
-    Manage Order
-  </button>
+  
+
+${["staff", "moderator"].includes(document.body.dataset.role)
+        ?
+        [
+          "in transit",
+          "delivered",
+          "completed",
+          "returned",
+          "returning",
+          "failed delivery"
+        ].includes(
+          String(order.order_status || "").trim().toLowerCase()
+        )
+
+          ? `
+      <button
+        class="mini-manage-btn"
+        type="button"
+        onclick="openTracking('${escapeAttribute(orderId)}')"
+      >
+        Track Order
+      </button>
+    `
+          : order.tracking_number && order.awb_link
+            ? `
+        <button
+          class="mini-manage-btn"
+          type="button"
+          onclick="openAWB('${escapeAttribute(orderId)}')"
+        >
+          Print Waybill
+        </button>
+      `
+            : `
+        <button
+          class="mini-manage-btn"
+          type="button"
+          onclick="createSPXShipment('${escapeAttribute(orderId)}', this)"
+        >
+          Arrange Shipment
+        </button>
+      `
+        : `
+    <button
+      class="mini-manage-btn"
+      type="button"
+      onclick="openOrderModal('${escapeAttribute(orderId)}')"
+    >
+      Manage Order
+    </button>
+  `
+      }
+
+
 
 </div>
 
@@ -1852,7 +1950,11 @@ function renderStorePickupOrders() {
             ${itemsHtml}
           </div>
 
-          <div class="warehouse-order-info summary-box">
+        
+            <details class="pickup-summary-details">
+              <summary>Show Summary</summary>
+            <div class="warehouse-order-info summary-box">
+
 
             <div>
               <span>Phone</span>
@@ -1883,14 +1985,19 @@ function renderStorePickupOrders() {
 
             <div>
   <span>Courier</span>
-  <strong>Store Pickup</strong>
+  
+
+<strong>Store Pickup</strong>
 </div>
 
 </div>
+</details>
 
 <div
   style="
     display:flex;
+
+
     justify-content:flex-end;
     margin-top:10px;
   "
@@ -2470,33 +2577,88 @@ async function loadAdminOrders() {
       .map(normalizeOrder)
       .filter(order => order.order_status !== "Cancelled");
 
-    storePickupOrders = activeOrders.filter(order => {
-      const courier = String(
-        order.courier || ""
-      ).toLowerCase();
 
-      const orderStatus = String(
-        order.order_status || ""
-      ).toLowerCase();
+    /* LOAD STORE PICKUP WITHOUT BLOCKING MAIN ORDERS */
+    (async () => {
+      try {
+        const pickupResults = [];
+        let pickupPage = 1;
+        let pickupTotalPages = 1;
 
-      const paymentStatus = String(
-        order.payment_status || ""
-      ).toLowerCase();
+        do {
+          const pickupResponse = await adminFetchWithFallback(
+            `/api/orders?page=${pickupPage}&limit=100&period=all&filter=store%20pickup`
+          );
 
-      const isExpired =
-        orderStatus.includes("expired") ||
-        paymentStatus.includes("expired");
+          if (!pickupResponse.ok) {
+            throw new Error("Cannot load store pickup orders");
+          }
 
-      const isPickupFinished =
-        orderStatus === "completed" ||
-        orderStatus === "picked up";
+          const pickupData = await pickupResponse.json();
 
-      return (
-        courier.includes("store pickup") &&
-        !isExpired &&
-        !isPickupFinished
-      );
-    });
+          if (!pickupData.success || !Array.isArray(pickupData.orders)) {
+            throw new Error("Invalid store pickup response");
+          }
+
+          pickupResults.push(...pickupData.orders);
+
+          pickupTotalPages = Number(
+            pickupData.pagination?.totalPages || 1
+          );
+
+          pickupPage++;
+        } while (pickupPage <= pickupTotalPages);
+
+        storePickupOrders = pickupResults
+          .map(normalizeOrder)
+          .filter(order => {
+            const courier = String(
+              order.courier || ""
+            ).trim().toLowerCase();
+
+            const status = String(
+              order.order_status || ""
+            ).trim().toLowerCase();
+
+            const paymentStatus = String(
+              order.payment_status || ""
+            ).trim().toLowerCase();
+
+            return (
+              courier.includes("store pickup") &&
+              ![
+                "completed",
+                "picked up",
+                "cancelled",
+                "canceled",
+                "expired"
+              ].includes(status) &&
+              !paymentStatus.includes("expired")
+            );
+          });
+
+        renderStorePickupOrders();
+
+        const pickupCount = document.getElementById(
+          "countStorePickup"
+        );
+
+        if (pickupCount) {
+          pickupCount.textContent = storePickupOrders.length;
+          pickupCount.style.display =
+            storePickupOrders.length > 0
+              ? "inline-flex"
+              : "none";
+        }
+
+      } catch (pickupError) {
+        console.error(
+          "STORE PICKUP LOAD ERROR:",
+          pickupError
+        );
+      }
+    })();
+
 
     roroOrders = activeOrders.filter(order => {
       const courier = String(
@@ -3530,6 +3692,7 @@ ${!isStorePickup ? `
     </div>
 
 ${(
+      document.body.dataset.role === "admin" &&
       (
         [
           "pending",
@@ -3551,7 +3714,11 @@ ${(
         .toUpperCase() !== "PAID"
     ) ? `
 
-    <div class="order-cancel-actions">
+
+  <div
+        class="order-cancel-actions"
+        style="display:${document.body.dataset.role === 'admin' ? 'flex' : 'none'};"
+      >
       <select id="cancelReason-${escapeAttribute(orderId)}" class="cancel-reason-dropdown">
         <option value="">Select reason</option>
         <option>Out of stock</option>
@@ -3572,6 +3739,33 @@ ${(
     </div>
     ` : ""}
   `;
+
+
+  /* STAFF ORDER ACTION RESTRICTIONS */
+  if (["staff", "moderator"].includes(document.body.dataset.role)) {
+
+
+    const allowedViewActions = new Set([
+      "openAWB",
+      "printOrderInvoice",
+      "openTracking",
+      "markStorePickupPaid",
+      "confirmStorePickup",
+      "completeStorePickup"
+    ]);
+
+
+    content.querySelectorAll("button").forEach(button => {
+      const action = button.getAttribute("onclick") || "";
+      const functionName = action.match(/^\s*(\w+)\s*\(/)?.[1];
+
+      if (!allowedViewActions.has(functionName)) {
+        button.remove();
+      }
+    });
+
+  }
+
 
   modal.style.display = "flex";
 }
@@ -3858,6 +4052,16 @@ async function createSPXShipment(orderId, btn) {
       return;
     }
 
+
+    if (String(order.tracking_number || "").trim()) {
+      showToast(
+        "Shipment already exists. Please check the AWB before arranging again.",
+        "error"
+      );
+      return;
+    }
+
+
     const paymentStatus = String(
       order.payment_status ||
       order.status ||
@@ -3900,15 +4104,32 @@ async function createSPXShipment(orderId, btn) {
       STEP 1:
       Gumawa ng SPX shipment / waybill.
     */
+
+
+    const { data: { session } } =
+      await supabaseClient.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error("Please log in again.");
+    }
+
+    const isStaff = ["staff", "moderator"].includes(
+      document.body.dataset.role
+    );
+
+    const apiUrl = BACKUP_API_URL;
+
     const shipmentResponse = await fetch(
-      `${BACKUP_API_URL}/api/orders/${orderId}/spx-create`,
+      `${apiUrl}/api/orders/${encodeURIComponent(orderId)}/spx-create`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
         }
       }
     );
+
 
     const shipmentResult =
       await shipmentResponse.json();
@@ -3920,10 +4141,16 @@ async function createSPXShipment(orderId, btn) {
       );
     }
 
+
     resetButtonLoading(btn);
 
-    closeOrderModal();
-    applyUpdatedOrderLocal(shipmentResult.order);
+    if (shipmentResult.order) {
+      applyUpdatedOrderLocal(shipmentResult.order);
+    }
+
+    // Refresh order details, tracking number, and AWB
+    await loadAdminOrders();
+
 
     await showSuccessModal(
       "SPX Shipment Arranged",
@@ -4357,6 +4584,9 @@ async function loadCancelledOrders() {
   }
 }
 
+let cancelledOrdersPage = 1;
+const cancelledOrdersPageSize = 10;
+
 function renderCancelledOrders() {
 
   if (!cancelledOrdersTableBody) return;
@@ -4372,63 +4602,108 @@ function renderCancelledOrders() {
     return;
   }
 
+  const start = (cancelledOrdersPage - 1) * cancelledOrdersPageSize;
+
   cancelledOrdersTableBody.innerHTML =
-    cancelledOrders.map(order => {
+    cancelledOrders
+      .slice(start, start + cancelledOrdersPageSize)
+      .map(order => {
 
-      const orderId =
-        order.external_id ||
-        order.id ||
-        "";
+        const orderId =
+          order.external_id ||
+          order.id ||
+          "";
 
-      return `
+        return `
         <div class="warehouse-order-card">
 
           <div class="warehouse-order-head">
 
             <span>
-              <strong>${escapeHtml(orderId)}</strong>
-              <br>
-              ${escapeHtml(order.customer_name || "Customer")}
-            </span>
+                <strong>${escapeHtml(orderId)}</strong>
+                <br>
+                ${escapeHtml(order.customer_name || "Customer")}
+           </span>
 
             <span class="status-badge status-inactive">
-  Cancelled
-  ${order.cancel_type
-          ? `• ${escapeHtml(order.cancel_type)}`
-          : ""}
-</span>
+                  Cancelled
+                  ${order.cancel_type
+            ? `• ${escapeHtml(order.cancel_type)}`
+            : ""}
+            </span>
 
           </div>
 
-<div
-  class="warehouse-order-info summary-box"
-  style="
-    border-top:1px solid #e5e7eb;
-    padding-top:10px;
-    margin-top:10px;
-  "
->
-            <div>
-              <span>Amount</span>
+          <div
+            class="warehouse-order-info summary-box"
+              style="
+                border-top:1px solid #e5e7eb;
+                padding-top:10px;
+                margin-top:10px;
+              "
+            >
+         <div>
+                     
+         <span>Amount</span>
 
-              <strong>
+               <strong>
                 ₱${Number(order.amount || 0)
-          .toLocaleString("en-PH")}
-              </strong>
-            </div>
+            .toLocaleString("en-PH")}
+                 </strong>
+         </div>
 
-            <div>
-              <span>Payment</span>
+          <div>
+          <span>Payment</span>
 
               <strong>
-                ${escapeHtml(order.status || "-")}
+               ${escapeHtml(order.status || "-")}
               </strong>
             </div>
 
-          </div>
+         </div>
+        </div>
       `;
 
-    }).join("");
+      }).join("");
+
+  const totalPages = Math.max(
+
+    1,
+    Math.ceil(cancelledOrders.length / cancelledOrdersPageSize)
+  );
+
+  cancelledOrdersTableBody.insertAdjacentHTML("beforeend", `
+      <div class="orders-pagination">
+        <button type="button"
+          onclick="changeCancelledOrdersPage(-1)"
+          ${cancelledOrdersPage <= 1 ? "disabled" : ""}>
+          Previous
+        </button>
+
+        <span>Page ${cancelledOrdersPage} of ${totalPages}</span>
+
+        <button type="button"
+          onclick="changeCancelledOrdersPage(1)"
+          ${cancelledOrdersPage >= totalPages ? "disabled" : ""}>
+          Next
+        </button>
+      </div>
+    `);
+
+}
+
+function changeCancelledOrdersPage(delta) {
+  const totalPages = Math.max(
+    1,
+    Math.ceil(cancelledOrders.length / cancelledOrdersPageSize)
+  );
+
+  cancelledOrdersPage = Math.max(
+    1,
+    Math.min(totalPages, cancelledOrdersPage + delta)
+  );
+
+  renderCancelledOrders();
 }
 
 async function undoCancelledOrder(orderId) {
@@ -5083,12 +5358,20 @@ function subscribeToOrderUpdates() {
               .trim()
               .toLowerCase();
 
+
           if (
-            payload.eventType === "DELETE" ||
-            newStatus === "cancelled"
+            ["admin", "staff", "moderator"].includes(
+              document.body.dataset.role
+            ) &&
+            (
+              payload.eventType === "DELETE" ||
+              newStatus === "cancelled"
+            )
           ) {
             await loadCancelledOrders();
           }
+
+
         }
       )
 
@@ -5100,10 +5383,26 @@ function subscribeToOrderUpdates() {
       });
 }
 
+
 loadAdminOrders();
 subscribeToOrderUpdates();
 
-setTimeout(() => {
-  loadCancelledOrders();
-}, 1000);
 
+/* Cancelled Orders - Admin and Staff visibility */
+if (["admin", "staff", "moderator"].includes(document.body.dataset.role)) {
+  setTimeout(() => {
+    loadCancelledOrders();
+  }, 1000);
+}
+
+/* LOAD CANCELLED ORDERS WHEN OPENED */
+
+document
+  .querySelector('[data-section="cancelledOrdersSection"]')
+  ?.addEventListener("click", () => {
+    if (["admin", "staff", "moderator"].includes(
+      document.body.dataset.role
+    )) {
+      loadCancelledOrders();
+    }
+  });

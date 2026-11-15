@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Warehouse Dashboard | Drin Electronics</title>
+
+    <link rel="stylesheet" href="./staff-login.css?v=10003">
+</head>
+
+<body>
+    <div class="staff-dashboard-container">
+        <div class="staff-dashboard-card">
+
+            <!-- HEADER -->
+            <header class="warehouse-header">
+                <div>
+                    <h1>DRIN ELECTRONICS</h1>
+                    <p>Warehouse Order Management</p>
+
+                    <p id="staffWelcome">
+                        Checking staff access...
+                    </p>
+                </div>
+
+                <button id="staffLogoutBtn" disabled>
+                    Logout
+                </button>
+            </header>
+
+            <!-- ORDER SUMMARY -->
+            <section class="warehouse-summary">
+
+                <div>
+                    <span>To Pack</span>
+                    <strong id="staffToPack">—</strong>
+                </div>
+
+                <div>
+                    <span>To Ship</span>
+                    <strong id="staffToShip">—</strong>
+                </div>
+
+                <div>
+                    <span>Shipped</span>
+                    <strong id="staffShipped">—</strong>
+                </div>
+
+            </section>
+
+            <!-- ORDER MANAGEMENT -->
+            <section id="staffOrdersSection">
+
+                <h2>Order Fulfillment</h2>
+
+                <div class="staff-order-tabs">
+                    <button type="button" data-tab="orders">
+                        Orders
+                    </button>
+
+                    <button type="button" data-tab="pickup">
+                        Store Pickup Orders
+                    </button>
+
+                    <button type="button" data-tab="roro">
+                        RORO Orders
+                    </button>
+                </div>
+
+                <div id="staffOrdersContent">
+                    <p>Loading orders...</p>
+                </div>
+
+            </section>
+
+        </div>
+    </div>
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="./supabase.js?v=10010"></script>
+
+    <!-- STAFF DASHBOARD -->
+    <script src="./staff-dashboard.js?v=10002"></script>
+</body>
+
+</html>

@@ -31,7 +31,7 @@ html,
 body {
   width: 100%;
   min-height: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .admin-layout {
@@ -2285,4 +2285,686 @@ body {
 
 .logout-btn:active {
   transform: translateY(0);
+}
+
+
+/* =====================================
+   STAFF / MODERATOR DASHBOARD ACCESS
+===================================== */
+
+body[data-role="staff"] .sidebar-menu>*,
+body[data-role="moderator"] .sidebar-menu>* {
+  display: none !important;
+}
+
+
+/* Staff allowed menu sections */
+body[data-role="staff"] .menu-item[data-section="ordersSection"],
+body[data-role="staff"] .menu-item[data-section="storePickupSection"],
+body[data-role="staff"] .menu-item[data-section="roroOrdersSection"],
+body[data-role="staff"] .menu-item[data-section="cancelledOrdersSection"],
+body[data-role="staff"] .menu-item[data-section="returnRefundSection"],
+body[data-role="moderator"] .menu-item[data-section="ordersSection"],
+body[data-role="moderator"] .menu-item[data-section="storePickupSection"],
+body[data-role="moderator"] .menu-item[data-section="roroOrdersSection"],
+body[data-role="moderator"] .menu-item[data-section="cancelledOrdersSection"],
+body[data-role="moderator"] .menu-item[data-section="returnRefundSection"] {
+  display: block !important;
+}
+
+
+/* Hide Admin-only header controls */
+body[data-role="staff"] .maintenance-controls,
+body[data-role="moderator"] .maintenance-controls {
+  display: none !important;
+}
+
+/* Hide restricted content sections */
+body[data-role="staff"] .content-section:not(#ordersSection):not(#storePickupSection):not(#roroOrdersSection):not(#cancelledOrdersSection):not(#returnRefundSection),
+body[data-role="moderator"] .content-section:not(#ordersSection):not(#storePickupSection):not(#roroOrdersSection):not(#cancelledOrdersSection):not(#returnRefundSection) {
+  display: none !important;
+}
+
+/* Prevent Admin Dashboard flash before authentication */
+body[data-role="checking"] .admin-layout {
+  visibility: hidden !important;
+}
+
+
+/* STAFF ORDER ACTION - BESIDE FIRST PRODUCT */
+
+body[data-role="staff"] .warehouse-order-grid,
+body[data-role="moderator"] .warehouse-order-grid {
+  position: relative;
+}
+
+body[data-role="staff"] .warehouse-order-grid>div:has(> .mini-manage-btn),
+body[data-role="moderator"] .warehouse-order-grid>div:has(> .mini-manage-btn) {
+  position: absolute !important;
+  top: 10px;
+  right: 15px;
+  margin: 0 !important;
+  z-index: 5;
+}
+
+body[data-role="staff"] .warehouse-order-grid>.warehouse-items-list,
+body[data-role="moderator"] .warehouse-order-grid>.warehouse-items-list {
+  padding-right: 160px;
+}
+
+@media (max-width: 600px) {
+
+  body[data-role="staff"] .warehouse-order-grid>div:has(> .mini-manage-btn),
+  body[data-role="moderator"] .warehouse-order-grid>div:has(> .mini-manage-btn) {
+    position: static !important;
+    margin-top: 10px !important;
+  }
+
+  body[data-role="staff"] .warehouse-order-grid>.warehouse-items-list,
+  body[data-role="moderator"] .warehouse-order-grid>.warehouse-items-list {
+    padding-right: 0;
+  }
+}
+
+
+/* CENTER SHOW ALL ORDERS BUTTON */
+
+body[data-role="staff"] .warehouse-items-list button[onclick^="toggleShowAllOrderItems"],
+body[data-role="moderator"] .warehouse-items-list button[onclick^="toggleShowAllOrderItems"] {
+  display: block !important;
+  width: fit-content;
+  margin: 12px auto !important;
+  align-self: center;
+}
+
+
+/* =====================================
+   STAFF ORDER CARD - CLEAN LAYOUT
+===================================== */
+
+/* 1. Keep order items and shipment button aligned */
+body:is([data-role="staff"], [data-role="moderator"]) .warehouse-order-grid {
+  position: relative;
+}
+
+/* 2. Shipment / Tracking button at upper-right */
+body:is([data-role="staff"], [data-role="moderator"]) .warehouse-order-grid>div:has(> .mini-manage-btn) {
+  position: absolute !important;
+  top: 10px;
+  right: 15px;
+  margin: 0 !important;
+  z-index: 5;
+}
+
+/* Leave space for the action button */
+body:is([data-role="staff"], [data-role="moderator"]) .warehouse-items-list {
+  padding-right: 160px;
+}
+
+/* 3. Show All Orders centered under products */
+body:is([data-role="staff"], [data-role="moderator"]) .warehouse-items-list button[onclick^="toggleShowAllOrderItems"] {
+  display: block !important;
+  width: fit-content;
+  margin: 14px auto !important;
+}
+
+/* 4. Separate Order Details section */
+body:is([data-role="staff"], [data-role="moderator"]) .summary-box:has(button[onclick^="toggleOrderSummary"]) {
+  border-top: 1px solid #e5e7eb !important;
+  padding-top: 14px !important;
+  margin-top: 16px !important;
+}
+
+/* Order Details heading */
+body:is([data-role="staff"], [data-role="moderator"]) .summary-box:has(button[onclick^="toggleOrderSummary"])::before {
+  content: "Order Details";
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* 5. Show Summary button at lower-right */
+body:is([data-role="staff"], [data-role="moderator"]) button[onclick^="toggleOrderSummary"] {
+  display: block !important;
+  width: fit-content !important;
+  margin: 14px 0 0 auto !important;
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Summary button hover */
+body:is([data-role="staff"], [data-role="moderator"]) button[onclick^="toggleOrderSummary"]:hover {
+  background: #e2e8f0;
+}
+
+/* 6. Mobile layout */
+@media (max-width: 600px) {
+
+  body:is([data-role="staff"], [data-role="moderator"]) .warehouse-items-list {
+    padding-right: 0;
+  }
+
+  body:is([data-role="staff"], [data-role="moderator"]) .warehouse-order-grid>div:has(> .mini-manage-btn) {
+    position: static !important;
+    margin-top: 12px !important;
+  }
+}
+
+
+/* STAFF - ACTION BUTTON RIGHT ALIGN */
+
+body:is([data-role="staff"], [data-role="moderator"]) .warehouse-order-card .mini-manage-btn {
+  margin-left: auto;
+}
+
+/* MAIN ORDERS - SHOW SUMMARY RIGHT ALIGN */
+
+body:is([data-role="staff"], [data-role="moderator"]) .summary-box button[onclick^="toggleOrderSummary"] {
+  display: block !important;
+  width: fit-content !important;
+  margin: 12px 0 0 auto !important;
+}
+
+
+/* STORE PICKUP - MANAGE ORDER UPPER RIGHT */
+
+#storePickupOrdersTableBody .warehouse-order-card {
+  position: relative;
+}
+
+#storePickupOrdersTableBody .warehouse-order-card>div:has(> .mini-manage-btn) {
+  position: absolute !important;
+  top: 85px;
+  right: 16px;
+  margin: 0 !important;
+  z-index: 5;
+}
+
+#storePickupOrdersTableBody .warehouse-items-list {
+  padding-right: 160px;
+}
+
+@media (max-width: 600px) {
+  #storePickupOrdersTableBody .warehouse-order-card>div:has(> .mini-manage-btn) {
+    position: static !important;
+    margin-top: 10px !important;
+  }
+
+  #storePickupOrdersTableBody .warehouse-items-list {
+    padding-right: 0;
+  }
+}
+
+
+/* SHOW ALL ORDERS - CENTER ALIGN */
+
+.warehouse-items-list button[onclick^="toggleShowAllOrderItems"] {
+  display: block !important;
+  width: fit-content;
+  margin: 12px auto !important;
+}
+
+
+/* STORE PICKUP - SHOW SUMMARY */
+
+#storePickupOrdersTableBody .pickup-summary-details {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+#storePickupOrdersTableBody .pickup-summary-details>summary {
+  display: block !important;
+  width: fit-content !important;
+  margin: 0 0 0 auto !important;
+  padding: 9px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+#storePickupOrdersTableBody .pickup-summary-details>summary::-webkit-details-marker {
+  display: none;
+}
+
+#storePickupOrdersTableBody .pickup-summary-details[open]>summary {
+  margin-bottom: 12px !important;
+}
+
+
+/* MAIN ORDERS - TOTAL PRODUCTS AND QTY */
+
+#ordersSection .order-products-footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#ordersSection .order-products-total {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #475569;
+}
+
+#ordersSection .order-products-total span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+#ordersSection .order-products-footer .show-more-items-btn {
+  grid-column: 2;
+  margin: 0 !important;
+  justify-self: center;
+}
+
+
+/* PREMIUM UNIFORM SPACING - ALL NAVIGATION MODULES */
+
+.content-section:not(#ordersSection) {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 1500px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 0 22px 40px !important;
+}
+
+/* TABLET */
+@media (max-width: 900px) {
+  .content-section:not(#ordersSection) {
+    padding: 0 16px 30px !important;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 640px) {
+  .content-section:not(#ordersSection) {
+    padding: 0 12px 24px !important;
+  }
+}
+
+/* CANCELLED ORDERS PAGINATION */
+#cancelledOrdersSection .orders-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+#cancelledOrdersSection .orders-pagination button {
+  padding: 10px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#cancelledOrdersSection .orders-pagination button:hover:not(:disabled) {
+  background: #06b6d4;
+  color: white;
+}
+
+#cancelledOrdersSection .orders-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* MAIN ORDERS - STICKY HEADER AND FILTERS */
+
+#ordersSection .section-header {
+  position: sticky;
+  top: 80px;
+  z-index: 43;
+  background: #f3f4f6;
+  padding: 12px 0;
+  margin-bottom: 0;
+}
+
+#ordersSection .orders-summary-grid {
+  position: sticky;
+  top: 160px;
+  z-index: 42;
+  background: #f3f4f6;
+}
+
+#ordersSection .order-period-filters {
+  position: sticky;
+  top: 270px;
+  z-index: 41;
+  background: #f3f4f6;
+  padding: 8px 0;
+}
+
+
+/* MAIN ORDERS - STICKY HEADER WITH COMPACT SPACING */
+#ordersSection .orders-sticky-header {
+  position: sticky;
+  top: 80px;
+  z-index: 40;
+  background: #f3f4f6;
+  padding: 4px 0 8px;
+}
+
+/* Prevent old sticky rules from overlapping */
+#ordersSection .orders-sticky-header .section-header,
+#ordersSection .orders-sticky-header .orders-summary-grid,
+#ordersSection .orders-sticky-header .order-period-filters,
+#ordersSection .orders-sticky-header .orders-toolbar {
+  position: static;
+  top: auto;
+}
+
+/* MAIN ORDERS - ULTRA COMPACT SUMMARY */
+
+#ordersSection .orders-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+#ordersSection .orders-summary-card {
+  min-height: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  gap: 2px;
+  box-shadow: none;
+}
+
+#ordersSection .orders-summary-card span {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+#ordersSection .orders-summary-card strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+/* MAIN ORDERS - ULTRA COMPACT STATUS BUTTONS */
+
+#ordersSection .orders-toolbar {
+  padding: 7px 9px;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+#ordersSection .orders-toolbar-left {
+  gap: 5px;
+}
+
+#ordersSection .order-filter-btn {
+  padding: 6px 9px;
+  font-size: 11px;
+  border-radius: 6px;
+  line-height: 1.2;
+}
+
+/* Smaller status counter badges */
+#ordersSection .order-filter-count {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+
+/* Compact Daily / Weekly / Monthly / Yearly */
+#ordersSection .order-period-filters {
+  gap: 5px;
+  margin-bottom: 8px !important;
+}
+
+#ordersSection .order-period-btn {
+  padding: 6px 9px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+
+/* MAIN ORDERS - HEADER ACTION BUTTONS */
+
+#ordersSection .orders-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#ordersSection .orders-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#ordersSection .orders-header-actions button {
+  padding: 7px 11px;
+  font-size: 11px;
+  border-radius: 7px;
+}
+
+@media (max-width: 600px) {
+  #ordersSection .orders-header-row {
+    flex-wrap: wrap;
+  }
+}
+
+#ordersSection .orders-toolbar .order-period-filters {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 !important;
+  visibility: visible;
+  opacity: 1;
+}
+
+/* MAIN ORDERS - CLEAN FILTER LAYOUT */
+
+#ordersSection .orders-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 5px;
+  padding: 6px;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+
+#ordersSection .orders-toolbar-left {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex: none;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 6px;
+  padding: 6px 4px;
+  scrollbar-width: thin;
+}
+
+#ordersSection .orders-toolbar-left .order-filter-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#ordersSection .orders-toolbar>.order-period-filters {
+  display: flex;
+  width: 100%;
+  flex: none;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 4px;
+  margin: 0 !important;
+  padding: 2px 0;
+}
+
+/* MAIN ORDERS - COMPACT HEADER */
+
+#ordersSection .orders-sticky-header {
+  padding: 3px 0 5px;
+}
+
+/* Orders title */
+#ordersSection .orders-header-row {
+  margin-bottom: 4px;
+  gap: 8px;
+  padding: 0;
+}
+
+#ordersSection .orders-header-row h2 {
+  font-size: 19px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+/* Hide subtitle to save space */
+#ordersSection .orders-header-row p {
+  display: none;
+}
+
+/* Compact header action buttons */
+#ordersSection .orders-header-actions {
+  gap: 4px;
+}
+
+#ordersSection .orders-header-actions button {
+  padding: 4px 7px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+/* Compact summary */
+#ordersSection .orders-summary-grid {
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+#ordersSection .orders-summary-card {
+  min-height: 0;
+  padding: 4px 7px;
+  gap: 2px;
+  border-radius: 6px;
+}
+
+#ordersSection .orders-summary-card span {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+#ordersSection .orders-summary-card strong {
+  font-size: 15px;
+  line-height: 1.1;
+}
+
+/* Compact status toolbar */
+#ordersSection .orders-toolbar {
+  padding: 4px 6px;
+  margin: 0;
+  gap: 4px;
+}
+
+/* ORDERS HEADER - COMPACT ACTIONS */
+
+#ordersSection .orders-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+#ordersSection .orders-header-row h2 {
+  font-size: 19px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+#ordersSection .orders-header-row p {
+  display: none;
+}
+
+#ordersSection .orders-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+#ordersSection .orders-header-actions .order-period-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin: 0 !important;
+}
+
+#ordersSection .orders-header-actions button {
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+/* ORDERS HEADER - COMPACT ACTIONS */
+
+#ordersSection .orders-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+#ordersSection .orders-header-row h2 {
+  font-size: 19px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+#ordersSection .orders-header-row p {
+  display: none;
+}
+
+#ordersSection .orders-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+#ordersSection .orders-header-actions .order-period-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin: 0 !important;
+}
+
+#ordersSection .orders-header-actions button {
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.2;
 }

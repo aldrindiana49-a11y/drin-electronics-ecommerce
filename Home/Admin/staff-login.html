@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff Login | Drin Electronics</title>
+
+    <link rel="stylesheet" href="./staff-setup.css?v=10001">
+
+    <link rel="stylesheet" href="./staff-login.css?v=10001">
+
+    <link rel="icon" type="image/png" id="siteFavicon"
+        href="https://zdinvxowzpkolbfzpcac.supabase.co/storage/v1/object/public/product-images/logo.png?v=10011" />
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+
+            <h1>Staff Login</h1>
+
+            <p class="subtitle">
+                Welcome to Drin Electronics.
+                Sign in to your staff account.
+            </p>
+
+            <form id="staffLoginForm">
+
+                <input type="email" id="staffEmail" placeholder="Staff Email Address" autocomplete="username" required>
+
+                <input type="password" id="staffPassword" placeholder="Password" autocomplete="current-password"
+                    required>
+
+                <button type="submit" class="login-btn" id="staffLoginBtn">
+                    Login
+                </button>
+
+            </form>
+
+            <p id="staffLoginMessage" role="status" aria-live="polite">
+            </p>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="./supabase.js?v=10010"></script>
+    <script src="./staff-login.js?v=10001"></script>
+
+</body>
+
+</html>

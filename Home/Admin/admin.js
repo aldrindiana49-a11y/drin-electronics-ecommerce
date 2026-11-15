@@ -1,28 +1,61 @@
+
 async function checkAdminAccess() {
+    try {
+        const { data: { user }, error } =
+            await supabaseClient.auth.getUser();
 
-    const { data: { session } } =
-        await supabaseClient.auth.getSession();
+        if (error || !user) {
+            window.location.replace("./dashboard-index.html");
+            return;
+        }
 
-    if (!session) {
-        window.location.href =
-            "./dashboard-index.html";
-        return;
-    }
+        const { data: admin, error: adminError } =
+            await supabaseClient
+                .from("admin_users")
+                .select("role")
+                .eq("id", user.id)
+                .eq("role", "admin")
+                .maybeSingle();
 
-    const { data: adminData, error } =
-        await supabaseClient
-            .from("admin_users")
-            .select("role")
-            .eq("id", session.user.id)
-            .eq("role", "admin")
-            .single();
+        if (adminError) throw adminError;
 
-    if (error || !adminData) {
-        await supabaseClient.auth.signOut();
+        if (admin) {
+            document.body.dataset.role = "admin";
+            return;
+        }
 
-        window.location.href =
-            "./dashboard-index.html";
-        return;
+        const { data: staff, error: staffError } =
+            await supabaseClient
+                .from("staff_users")
+                .select("role, is_active")
+                .eq("id", user.id)
+                .maybeSingle();
+
+        if (staffError) throw staffError;
+
+        if (
+            staff?.is_active &&
+            ["staff", "moderator"].includes(staff.role)
+        ) {
+            document.body.dataset.role = staff.role;
+
+            document.querySelector(".admin-badge")
+                ?.replaceChildren(
+                    document.createTextNode(
+                        staff.role === "moderator"
+                            ? "Moderator"
+                            : "Staff"
+                    )
+                );
+
+            return;
+        }
+
+        window.location.replace("./dashboard-index.html");
+
+    } catch (error) {
+        console.error("Dashboard access error:", error);
+        window.location.replace("./dashboard-index.html");
     }
 }
 
@@ -530,3 +563,33 @@ async function disableGlobalMaintenance() {
 
 }
 
+
+/* STAFF / MODERATOR MENU RESTRICTIONS */
+
+const staffAllowedSections = new Set([
+    "ordersSection",
+    "storePickupSection",
+    "roroOrdersSection",
+    "cancelledOrdersSection",
+    "returnRefundSection"
+]);
+
+document.addEventListener("click", (event) => {
+    const role = document.body.dataset.role;
+
+    if (!["staff", "moderator"].includes(role)) {
+        return;
+    }
+
+    const menuButton = event.target.closest(
+        ".menu-item[data-section]"
+    );
+
+    if (!menuButton) return;
+
+    if (!staffAllowedSections.has(menuButton.dataset.section)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        console.warn("Restricted section blocked.");
+    }
+}, true);
