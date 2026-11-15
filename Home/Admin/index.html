@@ -9,12 +9,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Drin Electronics Admin Panel</title>
-  <link rel="stylesheet" href="./admin.css?v=99999" />
+  <link rel="stylesheet" href="./admin.css?v=100002" />
 
 </head>
 
-<body>
-
+<body data-role="checking">
 
   <div class="admin-layout">
     <aside class="sidebar" id="sidebar">
@@ -379,7 +378,6 @@
                 <table class="data-table variant-table">
                   <thead>
                     <tr>
-                    <tr>
                       <th>Option</th>
                       <th>Original Price</th>
                       <th>Discount Price</th>
@@ -652,165 +650,155 @@
       <!-- END MARKETING CENTER -->
 
 
-
       <section class="content-section active-section" id="ordersSection">
 
-        <div class="section-header">
-          <h2>Orders</h2>
-          <p>Manage customer orders, payment status, and fulfillment.</p>
-        </div>
+        <div class="orders-sticky-header">
 
-        <div class="orders-summary-grid">
+          <div class="section-header orders-header-row">
 
-          <div class="orders-summary-card">
-            <span>Total Orders</span>
-            <strong id="ordersTotalCount">0</strong>
-          </div>
+            <div>
+              <h2>Orders</h2>
+              <p>Manage customer orders, payment status, and fulfillment.</p>
+            </div>
 
-          <div class="orders-summary-card">
-            <span>Pending Orders</span>
-            <strong id="ordersPendingCount">0</strong>
-          </div>
+            <div class="orders-header-actions">
 
-          <div class="orders-summary-card">
-            <span>Paid</span>
-            <strong id="ordersPaidCount">0</strong>
-          </div>
+              <div class="order-period-filters">
+                <button type="button" class="order-period-btn" data-period="daily">Daily</button>
+                <button type="button" class="order-period-btn" data-period="weekly">Weekly</button>
+                <button type="button" class="order-period-btn active" data-period="monthly">Monthly</button>
+                <button type="button" class="order-period-btn" data-period="yearly">Yearly</button>
+              </div>
 
-          <div class="orders-summary-card">
-            <span>To Ship</span>
-            <strong id="ordersToShipCount">0</strong>
-          </div>
+              <button class="small-btn" type="button" onclick="bulkMarkPacked(this)">
+                Mark Packed
+              </button>
 
-        </div>
-
-        <div class="order-period-filters" style="
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-            margin:0 0 14px 0;
-          ">
-          <button type="button" class="order-period-btn" data-period="daily">
-            Daily
-          </button>
-
-          <button type="button" class="order-period-btn" data-period="weekly">
-            Weekly
-          </button>
-
-          <button type="button" class="order-period-btn active" data-period="monthly">
-            Monthly
-          </button>
-
-          <button type="button" class="order-period-btn" data-period="yearly">
-            Yearly
-          </button>
-        </div>
-
-        <div class="orders-toolbar">
-
-          <div class="orders-toolbar-left">
-
-            <button class="order-filter-btn" data-filter="Pending">
-              Pending COD
-              <span class="order-filter-count" id="countPendingCod">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Pending Skyro">
-              Pending Skyro
-              <span class="order-filter-count" id="countPendingSkyro">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Awaiting Customer Application">
-              Awaiting Customer Application
-
-              <span class="order-filter-count" id="countAwaitingSkyroApplication">
-                0
-              </span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Skyro Approved">
-              Approved Skyro
-              <span class="order-filter-count" id="countApprovedSkyro">
-                0
-              </span>
-            </button>
-
-            <button class="order-filter-btn active" data-filter="Processing">
-              Processing
-              <span class="order-filter-count" id="countProcessing">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Packed">
-              Packed
-              <span class="order-filter-count" id="countPacked">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Shipped">
-              Shipped
-              <span class="order-filter-count" id="countShipped">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="In Transit">
-              In Transit
-              <span class="order-filter-count" id="countInTransit">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Delivered">
-              Delivered
-              <span class="order-filter-count" id="countDelivered">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Completed">
-              Completed
-              <span class="order-filter-count" id="countCompleted">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Returned">
-              Returned
-              <span class="order-filter-count" id="countReturned">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="PAID">
-              Paid
-              <span class="order-filter-count" id="countPaid">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Pending Payment">
-              Pending Payment
-              <span class="order-filter-count" id="countPendingPayment">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Failed Delivery">
-              Failed Delivery
-              <span class="order-filter-count" id="countFailedDelivery">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="Expired">
-              Expired
-              <span class="order-filter-count" id="countExpired">0</span>
-            </button>
-
-            <button class="order-filter-btn" data-filter="ALL">
-              All
-              <span class="order-filter-count" id="countAll">0</span>
-            </button>
+              <button class="secondary-btn" type="button" onclick="loadAdminOrders()">
+                Refresh
+              </button>
+            </div>
 
           </div>
 
-          <div class="orders-toolbar-right">
+          <div class="orders-summary-grid">
 
-            <button class="small-btn" type="button" onclick="bulkMarkPacked(this)">
-              Mark Packed
-            </button>
+            <div class="orders-summary-card">
+              <span>Total Orders</span>
+              <strong id="ordersTotalCount">0</strong>
+            </div>
 
-            <button class="secondary-btn" type="button" onclick="loadAdminOrders()">
-              Refresh
-            </button>
+            <div class="orders-summary-card">
+              <span>Pending Orders</span>
+              <strong id="ordersPendingCount">0</strong>
+            </div>
+
+            <div class="orders-summary-card">
+              <span>Paid</span>
+              <strong id="ordersPaidCount">0</strong>
+            </div>
+
+            <div class="orders-summary-card">
+              <span>To Ship</span>
+              <strong id="ordersToShipCount">0</strong>
+            </div>
 
           </div>
 
-        </div>
+          <div class="orders-toolbar">
+
+            <div class="orders-toolbar-left">
+
+              <button class="order-filter-btn" data-filter="Pending">
+                Pending COD
+                <span class="order-filter-count" id="countPendingCod">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Pending Skyro">
+                Pending Skyro
+                <span class="order-filter-count" id="countPendingSkyro">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Awaiting Customer Application">
+                Awaiting Customer Application
+
+                <span class="order-filter-count" id="countAwaitingSkyroApplication">
+                  0
+                </span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Skyro Approved">
+                Approved Skyro
+                <span class="order-filter-count" id="countApprovedSkyro">
+                  0
+                </span>
+              </button>
+
+              <button class="order-filter-btn active" data-filter="Processing">
+                Processing
+                <span class="order-filter-count" id="countProcessing">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Packed">
+                Packed
+                <span class="order-filter-count" id="countPacked">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Shipped">
+                Shipped
+                <span class="order-filter-count" id="countShipped">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="In Transit">
+                In Transit
+                <span class="order-filter-count" id="countInTransit">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Delivered">
+                Delivered
+                <span class="order-filter-count" id="countDelivered">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Completed">
+                Completed
+                <span class="order-filter-count" id="countCompleted">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Returned">
+                Returned
+                <span class="order-filter-count" id="countReturned">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="PAID">
+                Paid
+                <span class="order-filter-count" id="countPaid">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Pending Payment">
+                Pending Payment
+                <span class="order-filter-count" id="countPendingPayment">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Failed Delivery">
+                Failed Delivery
+                <span class="order-filter-count" id="countFailedDelivery">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="Expired">
+                Expired
+                <span class="order-filter-count" id="countExpired">0</span>
+              </button>
+
+              <button class="order-filter-btn" data-filter="ALL">
+                All
+                <span class="order-filter-count" id="countAll">0</span>
+              </button>
+
+            </div>
+
+          </div> <!-- orders-toolbar -->
+
+        </div> <!-- orders-sticky-header -->
 
         <div id="adminOrdersTableBody" class="admin-orders-list"></div>
 
@@ -1507,15 +1495,161 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
   <script src="./supabase.js?v=10010"></script>
-  <script src="./utils.js?v=10010"></script>
-  <script src="./admin.js?v=10011"></script>
-  <script src="./inventory.js?v=10012"></script>
-  <script src="./generator.js?v=10010"></script>
-  <script src="./categories.js?v=10010"></script>
-  <script src="./orders.js?v=10031"></script>
-  <script src="./employee.js?v=10010"></script>
-  <script src="./category-card-manager.js?v=10004"></script>
-  <script src="./user-management.js?v=10001"></script>
+
+
+  <script>
+    (async function startDashboard() {
+      const redirect = (path) => window.location.replace(path);
+
+      try {
+        const { data: { user }, error } =
+          await supabaseClient.auth.getUser();
+
+        if (error || !user) {
+          redirect("./dashboard-index.html");
+          return;
+        }
+
+        const { data: admin, error: adminError } =
+          await supabaseClient
+            .from("admin_users")
+            .select("role")
+            .eq("id", user.id)
+            .eq("role", "admin")
+            .maybeSingle();
+
+        if (adminError) throw adminError;
+
+        if (!admin) {
+          const { data: staff, error: staffError } =
+            await supabaseClient
+              .from("staff_users")
+              .select("role, is_active")
+              .eq("id", user.id)
+              .maybeSingle();
+
+          if (staffError) throw staffError;
+
+          if (
+            staff?.is_active &&
+            ["staff", "moderator"].includes(staff.role)
+          ) {
+
+            document.body.dataset.role = staff.role;
+
+
+            // Staff / Moderator logout
+            window.adminLogout = async function () {
+              const { error } = await supabaseClient.auth.signOut();
+
+              if (error) {
+                console.error("Logout failed:", error);
+                alert("Unable to log out. Please try again.");
+                return;
+              }
+
+              window.location.replace("./staff-login.html");
+            };
+
+
+            const badge = document.querySelector(".admin-badge");
+            if (badge) {
+              badge.textContent =
+                staff.role === "moderator" ? "Moderator" : "Staff";
+            }
+
+            // Keep sections accessible to Staff / Moderator
+            document.querySelectorAll(".content-section").forEach(section => {
+              if (![
+                "ordersSection",
+                "storePickupSection",
+                "roroOrdersSection",
+                "cancelledOrdersSection",
+                "returnRefundSection"
+              ].includes(section.id)) {
+                section.remove();
+              }
+            });
+
+            // Remove restricted header controls.
+            document.querySelector(".maintenance-controls")?.remove();
+
+            // Load only shared utilities and Orders module.
+            for (const src of [
+              "./utils.js?v=10011",
+              "./orders.js?v=10033"
+            ]) {
+              await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+              });
+            }
+
+            // Orders navigation
+            document.querySelectorAll(
+              '.menu-item[data-section]'
+            ).forEach(button => {
+              button.addEventListener("click", () => {
+                document.querySelectorAll(
+                  ".content-section"
+                ).forEach(section => {
+                  section.classList.toggle(
+                    "active-section",
+                    section.id === button.dataset.section
+                  );
+                });
+
+                document.querySelectorAll(".menu-item")
+                  .forEach(item => item.classList.remove("active"));
+
+                button.classList.add("active");
+              });
+            });
+
+            return;
+
+          }
+
+          redirect("./dashboard-index.html");
+          return;
+        }
+
+        document.body.dataset.role = "admin";
+
+        const scripts = [
+          "./utils.js?v=10011",
+          "./admin.js?v=10013",
+          "./inventory.js?v=10012",
+          "./generator.js?v=10010",
+          "./categories.js?v=10010",
+          "./orders.js?v=10032",
+          "./employee.js?v=10010",
+          "./category-card-manager.js?v=10004",
+          "./user-management.js?v=10001"
+        ];
+
+        for (const src of scripts) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = () =>
+              reject(new Error("Failed to load " + src));
+            document.body.appendChild(script);
+          });
+        }
+
+      } catch (error) {
+        console.error("Dashboard startup error:", error);
+        alert("Unable to verify dashboard access.");
+        redirect("./dashboard-index.html");
+      }
+    })();
+  </script>
+
 
 </body>
 

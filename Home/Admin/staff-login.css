@@ -1,0 +1,318 @@
+/* =========================================
+   DRIN ELECTRONICS - STAFF LOGIN
+========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #0f172a, #164e63);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 430px;
+    margin: auto;
+}
+
+.login-card {
+    width: 100%;
+    padding: 38px 32px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.login-card h1 {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.login-card .subtitle {
+    margin-bottom: 28px;
+    color: #64748b;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#staffLoginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#staffLoginForm input {
+    width: 100%;
+    padding: 15px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#staffLoginForm input:focus {
+    outline: none;
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+}
+
+#staffLoginBtn {
+    width: 100%;
+    margin-top: 6px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #06b6d4, #0284c7);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.2s;
+}
+
+#staffLoginBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+#staffLoginBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+#staffLoginMessage {
+    min-height: 20px;
+    margin-top: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 28px 22px;
+    }
+
+    .login-card h1 {
+        font-size: 24px;
+    }
+}
+
+
+/* =====================================
+   STAFF DASHBOARD
+===================================== */
+
+#staffWelcome {
+    text-align: center;
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.7;
+    margin: 20px 0 28px;
+}
+
+#staffLogoutBtn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #dc2626;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#staffLogoutBtn:hover:not(:disabled) {
+    background: #b91c1c;
+}
+
+#staffLogoutBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* STAFF DASHBOARD ONLY */
+.staff-dashboard-container {
+    min-height: 100vh;
+    padding: 30px;
+    background: linear-gradient(135deg, #0f172a, #164e63);
+}
+
+.staff-dashboard-card {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 18px;
+    background: white;
+}
+
+.staff-order-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.staff-order-tabs button {
+    padding: 10px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+#staffOrdersContent {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 16px;
+}
+
+#staffOrdersContent .warehouse-order-card {
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+
+/* =====================================
+   WAREHOUSE DASHBOARD FIXES
+===================================== */
+
+body:has(.staff-dashboard-container) {
+    display: block;
+    padding: 0;
+    background: #f1f5f9;
+}
+
+.staff-dashboard-container {
+    min-height: 100vh;
+    padding: 24px;
+    background: #f1f5f9;
+}
+
+.staff-dashboard-card {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px;
+    background: #ffffff;
+    border-radius: 16px;
+}
+
+.warehouse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.warehouse-header h1 {
+    margin: 0;
+    color: #0f172a;
+}
+
+.warehouse-header p {
+    margin: 6px 0;
+    color: #64748b;
+}
+
+.warehouse-header #staffWelcome {
+    text-align: left;
+    margin: 8px 0 0;
+}
+
+.warehouse-header #staffLogoutBtn {
+    width: auto;
+    min-width: 110px;
+    flex-shrink: 0;
+}
+
+.warehouse-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.warehouse-summary>div {
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.warehouse-summary span {
+    display: block;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.warehouse-summary strong {
+    display: block;
+    margin-top: 8px;
+    color: #0f172a;
+    font-size: 30px;
+}
+
+.staff-order-tabs button {
+    width: auto;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+#staffOrdersContent {
+    grid-template-columns: repeat(auto-fill,
+            minmax(min(100%, 340px), 1fr));
+}
+
+.staff-order-items {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.staff-order-items h4 {
+    margin: 0 0 10px;
+}
+
+.staff-order-items p {
+    margin: 6px 0;
+    color: #475569;
+}
+
+@media (max-width: 600px) {
+    .staff-dashboard-container {
+        padding: 12px;
+    }
+
+    .staff-dashboard-card {
+        padding: 16px;
+    }
+
+    .warehouse-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .warehouse-header {
+        flex-wrap: wrap;
+    }
+}
