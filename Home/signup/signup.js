@@ -1,6 +1,17 @@
 const signupForm =
     document.getElementById("signupForm");
 
+// EMAIL AUTO LOWERCASE AND CHARACTER FILTER
+const emailInput =
+    document.getElementById("email");
+
+emailInput?.addEventListener("input", () => {
+    emailInput.value = emailInput.value
+        .toLowerCase()
+        .replace(/\s/g, "")
+        .replace(/[^a-z0-9@._+-]/g, "");
+});
+
 const googleSignupBtn =
     document.getElementById("googleSignupBtn");
 
@@ -31,7 +42,9 @@ signupForm.addEventListener("submit", async (e) => {
         document.getElementById("name").value;
 
     const email =
-        document.getElementById("email").value;
+        document.getElementById("email").value
+            .trim()
+            .toLowerCase();
 
     const password =
         document.getElementById("password").value;

@@ -35,6 +35,15 @@ async function claimGuestOrdersAfterAuthentication() {
 const loginForm =
   document.getElementById("loginForm");
 
+const emailInput = document.getElementById("email");
+
+emailInput?.addEventListener("input", () => {
+  emailInput.value = emailInput.value
+    .toLowerCase()
+    .replace(/\s/g, "")
+    .replace(/[^a-z0-9@._+-]/g, "");
+});
+
 const googleLoginBtn =
   document.getElementById("googleLoginBtn");
 
@@ -97,7 +106,9 @@ loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email =
-    document.getElementById("email").value;
+    document.getElementById("email").value
+      .trim()
+      .toLowerCase();
 
   const password =
     document.getElementById("password").value;
@@ -238,7 +249,9 @@ forgotPasswordBtn?.addEventListener(
     e.preventDefault();
 
     const email =
-      document.getElementById("email").value.trim();
+      document.getElementById("email").value
+        .trim()
+        .toLowerCase();
 
     if (!email) {
 

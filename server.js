@@ -24,6 +24,98 @@ const supabase = createClient(
 );
 const app = express();
 
+
+/* =========================================
+   STAFF / ADMIN AUTHENTICATION MIDDLEWARE
+========================================= */
+
+async function requireStaffOrAdmin(req, res, next) {
+  try {
+    const token = req.headers.authorization
+      ?.replace(/^Bearer\s+/i, "");
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Login required."
+      });
+    }
+
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid login session."
+      });
+    }
+
+    const userId = authData.user.id;
+
+    // Check Admin
+    const { data: admin, error: adminError } =
+      await supabase
+        .from("admin_users")
+        .select("role")
+        .eq("id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+    if (adminError) {
+      throw adminError;
+    }
+
+    if (admin) {
+      req.account = {
+        id: userId,
+        role: "admin"
+      };
+
+      return next();
+    }
+
+    // Check Staff / Moderator
+    const { data: staff, error: staffError } =
+      await supabase
+        .from("staff_users")
+        .select("role, is_active")
+        .eq("id", userId)
+        .maybeSingle();
+
+    if (staffError) {
+      throw staffError;
+    }
+
+    if (
+      !staff ||
+      !staff.is_active ||
+      !["staff", "moderator"].includes(staff.role)
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied."
+      });
+    }
+
+    req.account = {
+      id: userId,
+      role: staff.role
+    };
+
+    next();
+
+  } catch (error) {
+    console.error("AUTH MIDDLEWARE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Authentication check failed."
+    });
+  }
+}
+
+
 app.use(cors());
 
 app.use(express.json({
@@ -1136,7 +1228,9 @@ app.post("/api/spx/awb", async (req, res) => {
 });
 
 // ================= SPX CREATE + SAVE TRACKING + AWB =================
-app.post("/api/orders/:orderId/spx-create", async (req, res) => {
+
+app.post("/api/orders/:orderId/spx-create", requireStaffOrAdmin, async (req, res) => {
+
   try {
     const { orderId } = req.params;
 
@@ -2414,9 +2508,53 @@ async function autoCompleteDeliveredOrders() {
   }
 }
 
+
+/* =========================================
+   STAFF ORDERS API - READ ONLY
+========================================= */
+
+app.get(
+  "/api/staff/orders",
+  requireStaffOrAdmin,
+  async (req, res) => {
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select(`
+          external_id,
+          created_at,
+          customer_name,
+          items,
+          amount,
+          order_status,
+          payment_status,
+          courier
+        `)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      return res.json({
+        success: true,
+        orders: data || []
+      });
+
+    } catch (error) {
+      console.error("STAFF ORDERS ERROR:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to load staff orders."
+      });
+    }
+  }
+);
+
+
 // ================= VIEW ACTIVE ORDERS =================
 
-app.get("/api/orders", async (req, res) => {
+app.get("/api/orders", requireStaffOrAdmin, async (req, res) => {
   try {
     const page = Math.max(
       Number(req.query.page) || 1,
