@@ -16,6 +16,12 @@ async function spxPost(endpoint, payload) {
   const appId = process.env.SPX_APP_ID;
   const appSecret = process.env.SPX_APP_SECRET;
 
+  if (!appId || !appSecret || !BASE_URL) {
+    throw new Error(
+      "Missing SPX configuration: check SPX_APP_ID, SPX_APP_SECRET, and SPX_API_BASE_URL."
+    );
+  }
+
   const timestamp = Math.floor(Date.now() / 1000);
   const randomNum = Math.floor(Math.random() * 1000000000);
 
